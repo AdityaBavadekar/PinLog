@@ -2,6 +2,9 @@
 
 # What is PinLog?
 PinLog is an easy-to-use and powerful android Logging Library. It is made by Aditya Bavadekar.
+
+![](https://github.com/AdityaBavadekar/PinLog/blob/master/icon-512.png)
+
 PinLog supports storing logs for later retrieval, saving logs in a file, saving logs in a zip file and more.
 
 # Latest version
