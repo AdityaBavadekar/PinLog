@@ -20,6 +20,7 @@ import android.os.Bundle
 import android.view.*
 import android.widget.LinearLayout
 import android.widget.RelativeLayout
+import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.SearchView
 import androidx.lifecycle.MutableLiveData
@@ -71,12 +72,18 @@ class PinLogDebugActivity : AppCompatActivity(), SearchView.OnQueryTextListener 
         }
         supportActionBar?.title =
             "PinLog : " + application.applicationInfo.loadLabel(application.packageManager)
+        PinLog.initialise(application, true)
+        Toast.makeText(
+            applicationContext,
+            "${PinLog.getPinLogsCount()} logs found.",
+            Toast.LENGTH_SHORT
+        ).show()
         loadLogs()
     }
 
     private fun loadLogs() = CoroutineScope(Dispatchers.IO).launch {
         isLoading.postValue(true)
-        PinLogActivityHolder.getPinLogClass().getAllPinLogs().also { list ->
+        PinLog.getAllPinLogs().also { list ->
             if (list.isEmpty()) isEmpty.postValue(true)
             else isEmpty.postValue(false)
             logsAdapter.addAll(list)

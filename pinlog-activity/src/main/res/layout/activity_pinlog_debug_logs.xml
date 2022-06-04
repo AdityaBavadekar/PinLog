@@ -44,7 +44,7 @@
         android:background="?attr/colorLoadingBackground"
         android:gravity="center"
         android:orientation="vertical"
-        tools:visibility="visible">
+        android:visibility="gone">
 
         <TextView
             android:layout_width="match_parent"

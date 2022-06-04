@@ -17,28 +17,21 @@
 package com.adityaamolbavadekar.pinlogactivity
 
 import android.app.Application
-import androidx.annotation.NonNull
 import com.adityaamolbavadekar.pinlog.PinLog
 
-
-object PinLogActivityHolder {
+open class PinLogActivityApp : Application() {
 
     /**
-     * Initialises [PinLog] from [PinLogActivityHolder]
+     * Initialises [PinLog] from [PinLogActivityApp]
      *
      * *Note : that the properties will be overwritten by new one if [PinLog] was previously initialised.*
      * @param application Application. Commonly used inside [Application.onCreate] method of your [Application] class
      * @return [Boolean] - If [PinLog] was previously initialised then `false` else `true`.
      *
      * */
-    @JvmStatic
-    fun initialise(
-        @NonNull application: Application,
-        setDevLoggingEnabled: Boolean = true,
-        setDoStoreLogs: Boolean = true,
-        buildConfig: Class<*>? = null
-    ): Boolean = PinLog.initialise(application, setDevLoggingEnabled, setDoStoreLogs, buildConfig)
-
-    fun getPinLogClass() = PinLog
+    override fun onCreate() {
+        super.onCreate()
+        PinLog.initialiseDebug(this)
+    }
 
 }
