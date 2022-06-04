@@ -5,6 +5,10 @@ PinLog is an easy-to-use and powerful android Logging Library. It is made by Adi
 
 ![](https://github.com/AdityaBavadekar/PinLog/blob/master/icon-512.png)
 
+|Screenshots `pinlog-activity` | |
+|---|---|
+|![](/Screenshot_20220604-163925.png)|![](Screenshot_20220604-164142_AdvanceLog.jpg)|
+
 PinLog supports storing logs for later retrieval, saving logs in a file, saving logs in a zip file and more.
 
 # Latest version
