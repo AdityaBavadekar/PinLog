@@ -23,13 +23,18 @@ import android.database.DatabaseUtils
 import android.database.sqlite.SQLiteDatabase
 import android.database.sqlite.SQLiteOpenHelper
 import com.adityaamolbavadekar.pinlog.ApplicationLogsContract
+import com.adityaamolbavadekar.pinlog.ApplicationLogsContract.ApplicationLogEntry.COLUMN_NAME_CREATED
 import com.adityaamolbavadekar.pinlog.ApplicationLogsContract.ApplicationLogEntry.COLUMN_NAME_ID
 import com.adityaamolbavadekar.pinlog.ApplicationLogsContract.ApplicationLogEntry.COLUMN_NAME_LOG
 import com.adityaamolbavadekar.pinlog.ApplicationLogsContract.ApplicationLogEntry.COLUMN_NAME_LOG_LEVEL
+import com.adityaamolbavadekar.pinlog.ApplicationLogsContract.ApplicationLogEntry.COLUMN_NAME_TAG
 import com.adityaamolbavadekar.pinlog.ApplicationLogsContract.ApplicationLogEntry.DATABASE_VERSION
 import com.adityaamolbavadekar.pinlog.ApplicationLogsContract.ApplicationLogEntry.TABLE_NAME
 import com.adityaamolbavadekar.pinlog.PinLog
 import com.adityaamolbavadekar.pinlog.PinLog.CLASS_TAG
+import com.adityaamolbavadekar.pinlog.extensions.toApplicationLogModel
+import com.adityaamolbavadekar.pinlog.extensions.toStringsList
+import java.util.*
 
 internal class ApplicationLogDatabaseHelper(c: Context) : SQLiteOpenHelper(
     c,
@@ -87,9 +92,12 @@ internal class ApplicationLogDatabaseHelper(c: Context) : SQLiteOpenHelper(
         val errorCode: Long = -1
         var rowId: Long = -1
         database?.let { db ->
-            val contentValues = ContentValues()
-            contentValues.put(COLUMN_NAME_LOG, applicationLog.LOG)
-            contentValues.put(COLUMN_NAME_LOG_LEVEL, applicationLog.LOG_LEVEL)
+            val contentValues = ContentValues().apply {
+                put(COLUMN_NAME_LOG, applicationLog.LOG)
+                put(COLUMN_NAME_LOG_LEVEL, applicationLog.LOG_LEVEL)
+                put(COLUMN_NAME_TAG, applicationLog.TAG)
+                put(COLUMN_NAME_CREATED, System.currentTimeMillis().toInt())
+            }
 
             try {
                 rowId = db.insert(TABLE_NAME, null, contentValues)
@@ -120,6 +128,24 @@ internal class ApplicationLogDatabaseHelper(c: Context) : SQLiteOpenHelper(
         }
     }
 
+    private fun deletePinLogs(ids: Array<Int>) {
+        database?.let { db ->
+            if (ids.isEmpty()) return
+            try {
+                val selection = "$COLUMN_NAME_ID LIKE ?"
+                val selectionArgs = ids.toStringsList()
+                db.delete(TABLE_NAME, selection, selectionArgs)
+            } catch (e: java.lang.Exception) {
+                e.printStackTrace()
+                PinLog.logError(
+                    "PinLogTable: Exception occurred in Database while executing deletePinLogs: $e",
+                    e
+                )
+            }
+
+        }
+    }
+
     override fun getPinLogs(group: Int): List<ApplicationLogModel> {
         return emptyList()//Not implemented
     }
@@ -130,7 +156,40 @@ internal class ApplicationLogDatabaseHelper(c: Context) : SQLiteOpenHelper(
             arrayOf(
                 COLUMN_NAME_ID,//0
                 COLUMN_NAME_LOG,//1
-                COLUMN_NAME_LOG_LEVEL//2
+                COLUMN_NAME_LOG_LEVEL,//2
+                COLUMN_NAME_TAG,//3
+                COLUMN_NAME_CREATED//4
+            ),
+            null,
+            null,
+            null,
+            null,
+            null,
+            null
+        )
+    }
+
+    private fun getCursorForStringLogs(db: SQLiteDatabase): Cursor? {
+        return db.query(
+            TABLE_NAME,
+            arrayOf(
+                COLUMN_NAME_LOG//0
+            ),
+            null,
+            null,
+            null,
+            null,
+            null,
+            null
+        )
+    }
+
+    private fun getCursorForExpiryLogs(db: SQLiteDatabase): Cursor? {
+        return db.query(
+            TABLE_NAME,
+            arrayOf(
+                COLUMN_NAME_ID,//0
+                COLUMN_NAME_CREATED//1
             ),
             null,
             null,
@@ -153,12 +212,7 @@ internal class ApplicationLogDatabaseHelper(c: Context) : SQLiteOpenHelper(
                         if (c.isClosed) {
                             break
                         }
-                        val id: Int = c.getInt(0)
-                        val log: String = c.getString(1)
-                        val level: Int = c.getInt(2)
-                        val pinLog = ApplicationLogModel(id, log, level)
-                        applicationLogsList.add(pinLog)
-
+                        applicationLogsList.add(c.toApplicationLogModel())
                     } while (c.moveToNext())
                 }
             } catch (e: Exception) {
@@ -178,7 +232,7 @@ internal class ApplicationLogDatabaseHelper(c: Context) : SQLiteOpenHelper(
     override fun getAllPinLogsAsStringList(): List<String> {
         val pinLogsList: MutableList<String> = mutableListOf()
         database?.let { db ->
-            val c = getCursor(db)
+            val c = getCursorForStringLogs(db)
 
             if (c == null || c.isClosed) return emptyList()
             else try {
@@ -187,8 +241,7 @@ internal class ApplicationLogDatabaseHelper(c: Context) : SQLiteOpenHelper(
                         if (c.isClosed) {
                             break
                         }
-                        val log: String = c.getString(1)
-                        pinLogsList.add(log)
+                        pinLogsList.add(c.getString(0) ?: "")
                     } while (c.moveToNext())
                 }
             } catch (e: Exception) {
@@ -209,7 +262,32 @@ internal class ApplicationLogDatabaseHelper(c: Context) : SQLiteOpenHelper(
         if (database == null) {
             return
         }
-        //Not yet implemented
+        database?.let { db ->
+            val c = getCursorForExpiryLogs(db)
+            val deletableLogs = mutableListOf<Int>()
+            if (c == null || c.isClosed) return
+            else try {
+                if (c.moveToFirst()) {
+                    do {
+                        if (c.isClosed) break
+
+                        val id = c.getInt(0)
+                        val created: Long = c.getInt(1).toLong()
+                        val today = Calendar.getInstance()
+                        today.timeInMillis = System.currentTimeMillis()
+                        val cal = Calendar.getInstance()
+                        cal.timeInMillis = created
+
+                        if (cal[Calendar.DAY_OF_YEAR] + 7 < today[Calendar.DAY_OF_YEAR]) {
+                            deletableLogs.add(id)
+                        }
+
+                    } while (c.moveToNext())
+                }
+            } catch (e: Exception) {
+            }
+            deletePinLogs(deletableLogs.toTypedArray())
+        }
     }
 
     init {

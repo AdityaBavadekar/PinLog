@@ -23,6 +23,7 @@ import android.util.Log
 import androidx.annotation.NonNull
 import com.adityaamolbavadekar.pinlog.database.ApplicationLogDatabaseHelper
 import com.adityaamolbavadekar.pinlog.database.ApplicationLogModel
+import com.adityaamolbavadekar.pinlog.extensions.clearListeners
 import com.adityaamolbavadekar.pinlog.extensions.submitLog
 import org.json.JSONArray
 import org.json.JSONObject
@@ -105,7 +106,8 @@ object PinLog {
     private var defaultExceptionHandler: Thread.UncaughtExceptionHandler? = null
     private var exceptionHandlerEnabled: Boolean = false
     private var sendToEmail: String? = null
-    private var listeners: MutableList<OnLogAddedListener> = mutableListOf()
+    private var stringLogListeners: MutableList<OnStringLogAddedListener> = mutableListOf()
+    private var logListeners: MutableList<OnLogAddedListener> = mutableListOf()
     private var callerPackageName: String = ""
     private var callerVersionName: String = ""
     private var callerVersionCode: String = ""
@@ -128,7 +130,7 @@ object PinLog {
     private fun onInitialisation() {
         logInfo("Dev Logging is enabled")
         getAppInfo()
-        logInfo("PinLog was initialised successfully for $callerPackageName")
+        logInfo("PinLog was initialised successfully for $callerAppName[${callerPackageName}] from ${getContext().javaClass.simpleName}")
         if (applicationLogDataSource == null) {
             applicationLogDataSource = ApplicationLogDatabaseHelper(getContext())
         }
@@ -159,7 +161,7 @@ object PinLog {
 
     }
 
-    internal fun logError(m: String, e: Exception?=null) {
+    internal fun logError(m: String, e: Exception? = null) {
         logE(CLASS_TAG, m, e)
     }
 
@@ -171,9 +173,8 @@ object PinLog {
         logI(CLASS_TAG, m)
     }
 
-    private fun notInitialised() {
+    private fun notInitialised() =
         logWarning("Could not initialise PinLog as it was previously initialised for $callerPackageName")
-    }
 
     private fun isAppInitialised(): Boolean {
         return when {
@@ -386,7 +387,7 @@ object PinLog {
                 return
             }
             else -> {
-                val log = loggingStyle!!.getFormattedLogData(
+                val stringLog = loggingStyle!!.getFormattedLogData(
                     data.TAG, data.m ?: "",
                     data.e,
                     data.dateLong,
@@ -394,6 +395,13 @@ object PinLog {
                     callerVersionName,
                     callerVersionCode,
                     callerPackageName
+                )
+                val log = ApplicationLogModel(
+                    id = 0,
+                    LOG = stringLog,
+                    LOG_LEVEL = data.level.LEVEL_INT,
+                    TAG = data.TAG,
+                    created = System.currentTimeMillis()
                 )
 
                 if (pinLoggerService == null) {
@@ -403,13 +411,7 @@ object PinLog {
                 if (shouldStoreLogs) {
                     val runnable = Runnable {
                         try {
-                            applicationLogDataSource?.insertPinLog(
-                                ApplicationLogModel(
-                                    id = 0,
-                                    LOG = log,
-                                    LOG_LEVEL = data.level.LEVEL_INT
-                                )
-                            )
+                            applicationLogDataSource?.insertPinLog(log)
                         } catch (ex: java.lang.Exception) {
                             ex.printStackTrace()
                         }
@@ -417,7 +419,8 @@ object PinLog {
                     pinLoggerService?.submit(runnable)
                 }
 
-                listeners.submitLog(log)
+                stringLogListeners.submitLog(stringLog)
+                logListeners.submitLog(log)
             }
         }
     }
@@ -429,9 +432,58 @@ object PinLog {
         DEBUG(3, "D")
     }
 
-    interface OnLogAddedListener {
+    /**
+     * Listener which notifies when a new log is added
+     * and returs the log in [onLogAdded] as a [String].
+     * @see OnLogAddedListener
+     * */
+    interface OnStringLogAddedListener {
         fun onLogAdded(log: String)
     }
+
+
+    /**
+     * Listener which notifies when a new log is added
+     * and returs the log in [onLogAdded] as a [ApplicationLogModel].
+     * @see OnStringLogAddedListener
+     * */
+    interface OnLogAddedListener {
+        fun onLogAdded(log: ApplicationLogModel)
+    }
+
+
+    /**
+     * Call this to add a [OnStringLogAddedListener] which notifies you when a new log is added
+     * @return [Boolean] whether listener was added.
+     *
+     * */
+    @JvmStatic
+    fun addListener(onStringLogAddedListener: OnStringLogAddedListener): Boolean {
+        return if (stringLogListeners.size >= 5) {
+            logWarning("Could not add new listener as max limit(5) has reached")
+            false
+        } else {
+            stringLogListeners.add(onStringLogAddedListener)
+            true
+        }
+    }
+
+    /**
+     * Call this to remove a previously added [OnStringLogAddedListener]
+     * @return [Boolean] whether listener was removed.
+     *
+     * */
+    @JvmStatic
+    fun removeListener(onStringLogAddedListener: OnStringLogAddedListener): Boolean {
+        return if (!stringLogListeners.contains(onStringLogAddedListener)) {
+            logWarning("Could not remove listener as it was not found")
+            false
+        } else {
+            stringLogListeners.remove(onStringLogAddedListener)
+            true
+        }
+    }
+
 
     /**
      * Call this to add a [OnLogAddedListener] which notifies you when a new log is added
@@ -440,11 +492,11 @@ object PinLog {
      * */
     @JvmStatic
     fun addListener(onLogAddedListener: OnLogAddedListener): Boolean {
-        return if (listeners.size >= 5) {
+        return if (stringLogListeners.size >= 5) {
             logWarning("Could not add new listener as max limit(5) has reached")
             false
         } else {
-            listeners.add(onLogAddedListener)
+            logListeners.add(onLogAddedListener)
             true
         }
     }
@@ -456,14 +508,24 @@ object PinLog {
      * */
     @JvmStatic
     fun removeListener(onLogAddedListener: OnLogAddedListener): Boolean {
-        return if (!listeners.contains(onLogAddedListener)) {
+        return if (!logListeners.contains(onLogAddedListener)) {
             logWarning("Could not remove listener as it was not found")
             false
         } else {
-            listeners.remove(onLogAddedListener)
+            logListeners.remove(onLogAddedListener)
             true
         }
     }
+
+    /**
+     * Call this to remove all [OnLogAddedListener] and [OnStringLogAddedListener].
+     * */
+    @JvmStatic
+    fun removeAllListeners() {
+        stringLogListeners.clearListeners()
+        logListeners.clearListeners()
+    }
+
 
     /**
      *

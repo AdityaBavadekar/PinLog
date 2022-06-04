@@ -25,19 +25,21 @@ internal object ApplicationLogsContract {
 
     object ApplicationLogEntry : BaseColumns {
         const val DATABASE_VERSION: Int = 1
-
-        //        const val DATABASE_NAME: String = "com.adityaamolbavadekar.pinlog.database.logs.db"
         const val TABLE_NAME: String = "pin_logger_logs"
         const val COLUMN_NAME_ID: String = "_id"
         const val COLUMN_NAME_LOG: String = "logs"
         const val COLUMN_NAME_LOG_LEVEL: String = "log_level"
+        const val COLUMN_NAME_TAG: String = "log_tag"
+        const val COLUMN_NAME_CREATED: String = "created"
 
         const val DATABASE_CREATE = ("CREATE TABLE IF NOT EXISTS "
                 + TABLE_NAME
                 + " ("
                 + COLUMN_NAME_ID + " INTEGER PRIMARY KEY AUTOINCREMENT, "
                 + COLUMN_NAME_LOG + " TEXT, "
-                + COLUMN_NAME_LOG_LEVEL + " INTEGER"
+                + COLUMN_NAME_LOG_LEVEL + " INTEGER, "
+                + COLUMN_NAME_TAG + " TEXT, "
+                + COLUMN_NAME_CREATED + " INTEGER"
                 + ");")
     }
 

@@ -1,2 +1,3 @@
-include ':app'
+include ':pinlog-activity'
+include ':pinlog'
 rootProject.name = "PinLog Library"

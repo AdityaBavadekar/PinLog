@@ -17,8 +17,10 @@
 package com.adityaamolbavadekar.pinlog.extensions
 
 import android.app.Application
+import android.database.Cursor
 import com.adityaamolbavadekar.pinlog.PinLog
 import com.adityaamolbavadekar.pinlog.PinLog.CLASS_TAG
+import com.adityaamolbavadekar.pinlog.database.ApplicationLogModel
 
 fun Application.initPinLogger(): Boolean {
     return PinLog.initialise(this)
@@ -52,7 +54,7 @@ inline fun error(e: Exception, m: () -> String) {
     PinLog.logE("?", m.invoke(), e)
 }
 
-fun MutableList<PinLog.OnLogAddedListener>.submitLog(log: String) {
+fun MutableList<PinLog.OnStringLogAddedListener>.submitLog(log: String) {
     for (it in this) {
         try {
             it.onLogAdded(log)
@@ -60,6 +62,38 @@ fun MutableList<PinLog.OnLogAddedListener>.submitLog(log: String) {
             PinLog.logW(CLASS_TAG, "Could not notify $it about newly added log")
         }
     }
-
 }
 
+fun MutableList<PinLog.OnLogAddedListener>.submitLog(log: ApplicationLogModel) {
+    for (it in this) {
+        try {
+            it.onLogAdded(log)
+        } catch (e: Exception) {
+            PinLog.logW(CLASS_TAG, "Could not notify $it about newly added log")
+        }
+    }
+}
+
+internal fun Cursor.toApplicationLogModel(): ApplicationLogModel {
+    val id: Int = getInt(0)
+    val log: String = getString(1)
+    val level: Int = getInt(2)
+    val tag: String = getString(3) ?: ""
+    val created: Long = getInt(4).toLong()
+    return ApplicationLogModel(id, log, level, tag, created)
+}
+
+fun Array<Int>.toStringsList(): Array<String> {
+    val list = arrayListOf<String>()
+    this.forEach {
+        list.add("$it")
+    }
+    return list.toTypedArray()
+}
+
+fun <T> MutableList<T>.clearListeners() {
+    if (this.isEmpty()) return
+    while (this.size != 0) {
+        this.removeAt(this.size - 1)
+    }
+}
