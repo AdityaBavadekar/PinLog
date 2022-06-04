@@ -59,20 +59,19 @@ class PinLogDebugActivity : AppCompatActivity(), SearchView.OnQueryTextListener 
                 }
             }
         }
-        isEmpty.observe(this) {
+        isEmpty.observe(this) {empty->
             findViewById<LinearLayout>(R.id.emptyLayout).apply {
-                if (it) {
+                if (empty) {
                     this.visibility = View.VISIBLE
                     logsRecyclerView.visibility = View.GONE
                 } else {
-                    this.visibility = View.VISIBLE
+                    this.visibility = View.GONE
                     logsRecyclerView.visibility = View.VISIBLE
                 }
             }
         }
         supportActionBar?.title =
             "PinLog : " + application.applicationInfo.loadLabel(application.packageManager)
-        PinLog.initialise(application, true)
         Toast.makeText(
             applicationContext,
             "${PinLog.getPinLogsCount()} logs found.",
