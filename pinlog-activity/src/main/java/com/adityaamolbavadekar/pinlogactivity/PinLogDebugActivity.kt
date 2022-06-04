@@ -18,6 +18,7 @@ package com.adityaamolbavadekar.pinlogactivity
 
 import android.os.Bundle
 import android.view.*
+import android.widget.LinearLayout
 import android.widget.RelativeLayout
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.SearchView
@@ -35,6 +36,7 @@ class PinLogDebugActivity : AppCompatActivity(), SearchView.OnQueryTextListener 
     private lateinit var logsAdapter: LogsAdapter
     private lateinit var logsRecyclerView: RecyclerView
     private val isLoading: MutableLiveData<Boolean> = MutableLiveData(true)
+    private val isEmpty: MutableLiveData<Boolean> = MutableLiveData(false)
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -56,14 +58,29 @@ class PinLogDebugActivity : AppCompatActivity(), SearchView.OnQueryTextListener 
                 }
             }
         }
-        supportActionBar?.title = application.applicationInfo.loadLabel(application.packageManager)
-        PinLog.initialiseOverride(application,true)
+        isEmpty.observe(this) {
+            findViewById<LinearLayout>(R.id.emptyLayout).apply {
+                if (it) {
+                    this.visibility = View.VISIBLE
+                    logsRecyclerView.visibility = View.GONE
+                } else {
+                    this.visibility = View.VISIBLE
+                    logsRecyclerView.visibility = View.VISIBLE
+                }
+            }
+        }
+        supportActionBar?.title =
+            "PinLog : " + application.applicationInfo.loadLabel(application.packageManager)
         loadLogs()
     }
 
     private fun loadLogs() = CoroutineScope(Dispatchers.IO).launch {
         isLoading.postValue(true)
-        logsAdapter.addAll(PinLog.getAllPinLogs())
+        PinLogActivityHolder.getPinLogClass().getAllPinLogs().also { list ->
+            if (list.isEmpty()) isEmpty.postValue(true)
+            else isEmpty.postValue(false)
+            logsAdapter.addAll(list)
+        }
         CoroutineScope(Dispatchers.Main).launch {
             logsAdapter.notifyDataSetChanged()
         }
@@ -97,7 +114,7 @@ class PinLogDebugActivity : AppCompatActivity(), SearchView.OnQueryTextListener 
                 true
             }
             R.id.searchLogs -> {
-                val s = (item.actionView as androidx.appcompat.widget.SearchView)
+                val s = (item.actionView as SearchView)
                 s.setOnQueryTextListener(this)
                 s.setOnCloseListener {
                     logsAdapter.clearSuggestions()

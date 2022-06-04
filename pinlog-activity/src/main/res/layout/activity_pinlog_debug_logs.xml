@@ -1,5 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
-<!--
+<?xml version="1.0" encoding="utf-8"?><!--
   ~     Copyright (c) 2022  Aditya Bavadekar
   ~
   ~     Licensed under the Apache License, Version 2.0 (the "License");
@@ -23,19 +22,50 @@
     android:theme="@style/PinLogDebugActivity">
 
     <RelativeLayout
+        android:id="@+id/loadingLayout"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:id="@+id/loadingLayout"
-        android:background="?attr/colorLoadingBackground">
+        android:background="?attr/colorLoadingBackground"
+        tools:visibility="gone">
 
         <ProgressBar
             android:id="@+id/progressBar"
-            android:indeterminate="true"
             style="?android:attr/progressBarStyle"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_centerInParent="true" />
+            android:layout_centerInParent="true"
+            android:indeterminate="true" />
     </RelativeLayout>
+
+    <LinearLayout
+        android:id="@+id/emptyLayout"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="?attr/colorLoadingBackground"
+        android:gravity="center"
+        android:orientation="vertical"
+        tools:visibility="visible">
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:padding="15dp"
+            android:text="@string/no_logs_yet"
+            android:textAppearance="@style/TextAppearance.AppCompat.Title" />
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginHorizontal="15dp"
+            android:fontFamily="serif-monospace"
+            android:gravity="center"
+            android:padding="15dp"
+            android:selectAllOnFocus="true"
+            android:text="@string/code_text"
+            android:textIsSelectable="true" />
+
+    </LinearLayout>
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/logsRecyclerView"
