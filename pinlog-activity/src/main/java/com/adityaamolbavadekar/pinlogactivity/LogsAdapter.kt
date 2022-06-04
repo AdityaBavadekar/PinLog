@@ -26,7 +26,7 @@ import android.widget.Toast
 import androidx.recyclerview.widget.RecyclerView
 import com.adityaamolbavadekar.pinlog.database.ApplicationLogModel
 
-class LogsAdapter : RecyclerView.Adapter<LogsAdapter.LogHolder>() {
+internal class LogsAdapter : RecyclerView.Adapter<LogsAdapter.LogHolder>() {
 
     private var itemsList = mutableListOf<ApplicationLogModel>()
     private var backupItemsList = mutableListOf<ApplicationLogModel>()

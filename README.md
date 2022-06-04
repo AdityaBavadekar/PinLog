@@ -27,7 +27,7 @@ allprojects {
 ```gradle
 dependencies {
      // Refer the above badge for latest `TAG`.
-    Implementation 'com.github.AdityaBavadekar.PinLog:pinlog:TAG'
+    implementation 'com.github.AdityaBavadekar.PinLog:pinlog:TAG'
     //Or if you want a DebugLogsActivity for 
     //your app which shows list of logs add this instead
     debugImplementation 'com.github.AdityaBavadekar.PinLog:pinlog-activity:TAG'
