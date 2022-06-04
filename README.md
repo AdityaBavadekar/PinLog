@@ -27,7 +27,11 @@ allprojects {
 ```gradle
 dependencies {
      // Refer the above badge for latest `TAG`.
-    implementation 'com.github.AdityaBavadekar:PinLog:TAG'
+    Implementation 'com.github.AdityaBavadekar.PinLog:pinlog:TAG'
+    //Or if you want a DebugLogsActivity for 
+    //your app which shows list of logs add this instead
+    debugImplementation 'com.github.AdityaBavadekar.PinLog:pinlog-activity:TAG'
+    
 }
 ```
 ### Using Maven : 
@@ -44,9 +48,16 @@ dependencies {
 ![TAG](https://jitpack.io/v/AdityaBavadekar/PinLog.svg)
 ```xml
 	<dependency>
-	    <groupId>com.github.AdityaBavadekar</groupId>
-	    <artifactId>PinLog</artifactId>
-	    <version>Tag</version>
+	    <groupId>com.github.AdityaBavadekar.PinLog</groupId>
+	    <artifactId>pinlog</artifactId>
+	    <version>TAG</version>
+	</dependency>
+<!--Or if you want a DebugLogsActivity for 
+     your app which shows list of logs add this instead-->
+	<dependency>
+	    <groupId>com.github.AdityaBavadekar.PinLog</groupId>
+	    <artifactId>pinlog-activity</artifactId>
+	    <version>TAG</version>
 	</dependency>
 ```
 

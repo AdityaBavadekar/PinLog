@@ -17,6 +17,7 @@
 package com.adityaamolbavadekar.pinlogactivity
 
 import android.content.Context
+import android.text.TextUtils
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -36,6 +37,18 @@ class LogsAdapter : RecyclerView.Adapter<LogsAdapter.LogHolder>() {
             val textViewLog = view.findViewById<TextView>(R.id.textView2)
             textViewLogLevel.text = logItem.LOG_LEVEL.toText
             textViewLog.text = logItem.LOG
+            var isExpanded = false
+            view.setOnClickListener {
+                if (!isExpanded) {
+                    isExpanded = true
+                    textViewLog.maxLines = Integer.MAX_VALUE
+                    textViewLog.ellipsize = TextUtils.TruncateAt.END
+                } else {
+                    isExpanded = false
+                    textViewLog.maxLines = 5
+                    textViewLog.ellipsize = TextUtils.TruncateAt.END
+                }
+            }
         }
 
         companion object {
@@ -55,9 +68,12 @@ class LogsAdapter : RecyclerView.Adapter<LogsAdapter.LogHolder>() {
     override fun onBindViewHolder(holder: LogHolder, position: Int) =
         holder.bind(itemsList[position])
 
-
     override fun getItemCount(): Int = itemsList.size
 
+    fun sortByTag() {
+        itemsList.sortBy { it.TAG }
+        notifyDataSetChanged()
+    }
 
     fun sortByLogLevel() {
         itemsList.sortBy { it.LOG_LEVEL }

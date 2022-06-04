@@ -20,6 +20,7 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:orientation="vertical"
+    android:background="?attr/selectableItemBackground"
     android:paddingHorizontal="25dp">
 
     <TextView
@@ -41,7 +42,19 @@
         android:paddingBottom="15dp"
         android:textSize="17sp"
         tools:maxLines="3"
+        android:textIsSelectable="true"
         tools:text="@tools:sample/lorem/random" />
+
+    <TextView
+        android:id="@+id/textView3"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:paddingBottom="15dp"
+        android:layout_gravity="center_vertical|end"
+        android:gravity="center_vertical|end"
+        android:singleLine="true"
+        android:visibility="gone"
+        tools:text="@tools:sample/date/mmddyy" />
 
     <View
         android:id="@+id/divider"

@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?><!--
+<!--
   ~     Copyright (c) 2022  Aditya Bavadekar
   ~
   ~     Licensed under the Apache License, Version 2.0 (the "License");
@@ -14,10 +14,13 @@
   ~     limitations under the License.
   -->
 
-<resources>
-    <string name="no_logs_yet">No logs yet.</string>
-    <string name="no_logs_yet_main_content_one">*Make sure you have initialised PinLog class in your Application\'s onCreate method.</string>
-    <string name="no_logs_yet_main_content_two">*Use the following line in your code to a test.</string>
-    <string name="code_initialise">PinLog.initialiseDebug(this)</string>
-    <string name="code_text">PinLog.logI(\"MainActivity\",\n\"Hello World\")</string>
-</resources>
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+        android:width="24dp"
+        android:height="24dp"
+        android:viewportWidth="24.0"
+        android:viewportHeight="24.0"
+        android:tint="?attr/colorControlNormal">
+    <path
+        android:fillColor="@android:color/white"
+        android:pathData="M6,2v6h0.01L6,8.01 10,12l-4,4 0.01,0.01L6,16.01L6,22h12v-5.99h-0.01L18,16l-4,-4 4,-3.99 -0.01,-0.01L18,8L18,2L6,2zM16,16.5L16,20L8,20v-3.5l4,-4 4,4zM12,11.5l-4,-4L8,4h8v3.5l-4,4z"/>
+</vector>

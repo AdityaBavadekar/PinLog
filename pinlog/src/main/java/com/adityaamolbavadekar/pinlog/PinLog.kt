@@ -14,6 +14,8 @@
  *   limitations under the License.
  ******************************************************************************/
 
+@file:Suppress("unused")
+
 package com.adityaamolbavadekar.pinlog
 
 import android.app.Application
@@ -21,11 +23,11 @@ import android.content.Context
 import android.content.Intent
 import android.util.Log
 import androidx.annotation.NonNull
+import androidx.core.content.pm.PackageInfoCompat
 import com.adityaamolbavadekar.pinlog.database.ApplicationLogDatabaseHelper
 import com.adityaamolbavadekar.pinlog.database.ApplicationLogModel
 import com.adityaamolbavadekar.pinlog.extensions.clearListeners
 import com.adityaamolbavadekar.pinlog.extensions.submitLog
-import com.adityaamolbavadekar.pinlog.extensions.warn
 import org.json.JSONArray
 import org.json.JSONObject
 import java.io.BufferedWriter
@@ -155,11 +157,10 @@ object PinLog {
     private fun getAppInfo() {
         val packageInfo = getContext().packageManager.getPackageInfo(getContext().packageName, 0)
         callerVersionName = packageInfo.versionName
-        callerVersionCode = "${packageInfo.versionCode}"
+        callerVersionCode = "${PackageInfoCompat.getLongVersionCode(packageInfo)}"
         callerPackageName = packageInfo.packageName
         callerAppName =
-            (packageInfo.applicationInfo.loadLabel(getContext().packageManager) ?: "") as String
-
+            packageInfo.applicationInfo.loadLabel(getContext().packageManager) as String
     }
 
     internal fun logError(m: String, e: Exception? = null) {
@@ -175,7 +176,7 @@ object PinLog {
     }
 
     private fun notInitialised() =
-        logWarning("Could not initialise PinLog as it was previously initialised for $callerPackageName")
+        logWarning("Could not initialise PinLog as it was previously initialised for $callerAppName[${callerPackageName}] from ${getContext().javaClass.simpleName}")
 
     private fun isAppInitialised(): Boolean {
         return when {
@@ -671,7 +672,7 @@ object PinLog {
      * */
     @JvmStatic
     fun getAllPinLogsAsString(): String? {
-        var logs: String? = null
+        var logs: String?
         if (!isAppInitialised()) {
             return null
         } else {
@@ -814,6 +815,13 @@ object PinLog {
         isDevLoggingEnabled = enabled
     }
 
+
+    /**
+     * Returns whether DevLogging is set to true
+     * */
+    fun getIsDevLoggingMode() = isDevLoggingEnabled
+
+
     /**
      * Uses built-in room to store logs
      * *Defaults to `true`
@@ -917,35 +925,11 @@ object PinLog {
         if (loggingStyle == null) {
             loggingStyle = DefaultApplicationLoggingStyle()
         }
+        setDevLogging(setDevLoggingEnabled)
+        setDoStoreLogs(setDoStoreLogs)
+        buildConfig?.let { setBuildConfigClass(it) }
         return instance(application)
     }
-
-
-    /**
-     * Initialises [PinLog] to override previous configurations
-     * Can only be called once else is ignored
-     * *Note : that the properties will be overwritten by new one if [PinLog] was previously initialised.*
-     * @param application Application. Commonly used inside [Application.onCreate] method of your [Application] class
-     * @return [Boolean] - If [PinLog] was previously initialised then `false` else `true`.
-     *
-     * */
-    @JvmStatic
-    fun initialiseOverride(
-        @NonNull application: Application,
-        setDevLoggingEnabled: Boolean = false,
-        setDoStoreLogs: Boolean = true,
-        buildConfig: Class<*>? = null
-    ): Boolean {
-        if (loggingStyle == null) {
-            loggingStyle = DefaultApplicationLoggingStyle()
-        }
-        app = application
-        isInitialised = true
-        warn { "Initialisation was overridden" }
-        onInitialisation()
-        return true
-    }
-
 
 
     /**

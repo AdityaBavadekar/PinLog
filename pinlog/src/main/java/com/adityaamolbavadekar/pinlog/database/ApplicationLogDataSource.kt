@@ -24,5 +24,6 @@ internal interface ApplicationLogDataSource {
     fun getPinLogs(group: Int): List<ApplicationLogModel?>?
     fun getAllPinLogs(): List<ApplicationLogModel>
     fun getAllPinLogsAsStringList() : List<String>
-    fun deletedExpiredPinLogs(expiryTimeInSeconds: Int)
+    fun getAllTags() : List<String>
+    fun deletedExpiredPinLogs()
 }

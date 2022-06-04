@@ -21,7 +21,7 @@
         <item name="colorPrimary">#000000</item>
         <item name="colorPrimaryDark">#000000</item>
         <item name="colorControlNormal">#FFFFFF</item>
-        <item name="colorLoadingBackground">#FFAB00</item>
+        <item name="colorLoadingBackground">#6A6A6A</item>
     </style>
 
 </resources>

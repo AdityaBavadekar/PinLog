@@ -37,35 +37,83 @@
             android:indeterminate="true" />
     </RelativeLayout>
 
-    <LinearLayout
-        android:id="@+id/emptyLayout"
+
+    <ScrollView
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:background="?attr/colorLoadingBackground"
-        android:gravity="center"
-        android:orientation="vertical"
-        android:visibility="gone">
+        android:id="@+id/emptyLayout"
+        >
 
-        <TextView
+
+        <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:gravity="center"
-            android:padding="15dp"
-            android:text="@string/no_logs_yet"
-            android:textAppearance="@style/TextAppearance.AppCompat.Title" />
+            android:layout_gravity="center"
+            android:orientation="vertical"
+            android:paddingHorizontal="25dp"
+            android:visibility="visible">
 
-        <TextView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginHorizontal="15dp"
-            android:fontFamily="serif-monospace"
-            android:gravity="center"
-            android:padding="15dp"
-            android:selectAllOnFocus="true"
-            android:text="@string/code_text"
-            android:textIsSelectable="true" />
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:drawablePadding="15dp"
+                android:drawableStart="@drawable/ic_empty"
+                android:gravity="center"
+                android:padding="15dp"
+                android:text="@string/no_logs_yet"
+                android:textAppearance="@style/TextAppearance.AppCompat.Large"
+                android:textColor="?android:textColorPrimary"
+                android:textStyle="bold" />
 
-    </LinearLayout>
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="15dp"
+                android:fontFamily="sans-serif-medium"
+                android:gravity="center"
+                android:padding="15dp"
+                android:text="@string/no_logs_yet_main_content_one"
+                android:textColor="?android:textColorPrimary" />
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="15dp"
+                android:background="?attr/colorLoadingBackground"
+                android:fontFamily="monospace"
+                android:gravity="center"
+                android:padding="15dp"
+                android:text="@string/code_initialise"
+                android:textAppearance="@style/TextAppearance.AppCompat.Medium"
+                android:textColor="?android:textColorPrimary"
+                android:textIsSelectable="true" />
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="15dp"
+                android:fontFamily="sans-serif-medium"
+                android:gravity="center"
+                android:padding="15dp"
+                android:text="@string/no_logs_yet_main_content_two"
+                android:textColor="?android:textColorPrimary" />
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="?attr/colorLoadingBackground"
+                android:fontFamily="monospace"
+                android:gravity="center"
+                android:padding="15dp"
+                android:text="@string/code_text"
+                android:textAppearance="@style/TextAppearance.AppCompat.Medium"
+                android:textColor="?android:textColorPrimary"
+                android:textIsSelectable="true" />
+
+        </LinearLayout>
+
+    </ScrollView>
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/logsRecyclerView"

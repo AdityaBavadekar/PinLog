@@ -22,14 +22,13 @@ import android.database.Cursor
 import android.database.DatabaseUtils
 import android.database.sqlite.SQLiteDatabase
 import android.database.sqlite.SQLiteOpenHelper
-import com.adityaamolbavadekar.pinlog.ApplicationLogsContract
-import com.adityaamolbavadekar.pinlog.ApplicationLogsContract.ApplicationLogEntry.COLUMN_NAME_CREATED
-import com.adityaamolbavadekar.pinlog.ApplicationLogsContract.ApplicationLogEntry.COLUMN_NAME_ID
-import com.adityaamolbavadekar.pinlog.ApplicationLogsContract.ApplicationLogEntry.COLUMN_NAME_LOG
-import com.adityaamolbavadekar.pinlog.ApplicationLogsContract.ApplicationLogEntry.COLUMN_NAME_LOG_LEVEL
-import com.adityaamolbavadekar.pinlog.ApplicationLogsContract.ApplicationLogEntry.COLUMN_NAME_TAG
-import com.adityaamolbavadekar.pinlog.ApplicationLogsContract.ApplicationLogEntry.DATABASE_VERSION
-import com.adityaamolbavadekar.pinlog.ApplicationLogsContract.ApplicationLogEntry.TABLE_NAME
+import com.adityaamolbavadekar.pinlog.database.ApplicationLogsContract.ApplicationLogEntry.COLUMN_NAME_CREATED
+import com.adityaamolbavadekar.pinlog.database.ApplicationLogsContract.ApplicationLogEntry.COLUMN_NAME_ID
+import com.adityaamolbavadekar.pinlog.database.ApplicationLogsContract.ApplicationLogEntry.COLUMN_NAME_LOG
+import com.adityaamolbavadekar.pinlog.database.ApplicationLogsContract.ApplicationLogEntry.COLUMN_NAME_LOG_LEVEL
+import com.adityaamolbavadekar.pinlog.database.ApplicationLogsContract.ApplicationLogEntry.COLUMN_NAME_TAG
+import com.adityaamolbavadekar.pinlog.database.ApplicationLogsContract.ApplicationLogEntry.DATABASE_VERSION
+import com.adityaamolbavadekar.pinlog.database.ApplicationLogsContract.ApplicationLogEntry.TABLE_NAME
 import com.adityaamolbavadekar.pinlog.PinLog
 import com.adityaamolbavadekar.pinlog.PinLog.CLASS_TAG
 import com.adityaamolbavadekar.pinlog.extensions.toApplicationLogModel
@@ -184,6 +183,21 @@ internal class ApplicationLogDatabaseHelper(c: Context) : SQLiteOpenHelper(
         )
     }
 
+    private fun getCursorForTags(db: SQLiteDatabase): Cursor? {
+        return db.query(
+            TABLE_NAME,
+            arrayOf(
+                COLUMN_NAME_TAG//0
+            ),
+            null,
+            null,
+            null,
+            null,
+            null,
+            null
+        )
+    }
+
     private fun getCursorForExpiryLogs(db: SQLiteDatabase): Cursor? {
         return db.query(
             TABLE_NAME,
@@ -258,7 +272,36 @@ internal class ApplicationLogDatabaseHelper(c: Context) : SQLiteOpenHelper(
         return pinLogsList.toList()
     }
 
-    override fun deletedExpiredPinLogs(expiryTimeInSeconds: Int) {
+    override fun getAllTags(): List<String> {
+        val tagsList: MutableList<String> = mutableListOf()
+        database?.let { db ->
+            val c = getCursorForTags(db)
+
+            if (c == null || c.isClosed) return emptyList()
+            else try {
+                if (c.moveToFirst()) {
+                    do {
+                        if (c.isClosed) {
+                            break
+                        }
+                        tagsList.add(c.getString(0) ?: "")
+                    } while (c.moveToNext())
+                }
+            } catch (e: Exception) {
+                e.printStackTrace()
+                PinLog.logError(
+                    "PinLogTable: Exception occurred in Database while executing getAllPinLogsAsStringList: $e",
+                    e
+                )
+            }
+            c.close()
+            return tagsList.toList()
+
+        }
+        return tagsList.toList()
+    }
+
+    override fun deletedExpiredPinLogs() {
         if (database == null) {
             return
         }

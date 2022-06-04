@@ -18,8 +18,8 @@ package com.adityaamolbavadekar.pinlogactivity
 
 import android.os.Bundle
 import android.view.*
-import android.widget.LinearLayout
 import android.widget.RelativeLayout
+import android.widget.ScrollView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.SearchView
@@ -59,8 +59,8 @@ class PinLogDebugActivity : AppCompatActivity(), SearchView.OnQueryTextListener 
                 }
             }
         }
-        isEmpty.observe(this) {empty->
-            findViewById<LinearLayout>(R.id.emptyLayout).apply {
+        isEmpty.observe(this) { empty ->
+            findViewById<ScrollView>(R.id.emptyLayout).apply {
                 if (empty) {
                     this.visibility = View.VISIBLE
                     logsRecyclerView.visibility = View.GONE
@@ -72,12 +72,19 @@ class PinLogDebugActivity : AppCompatActivity(), SearchView.OnQueryTextListener 
         }
         supportActionBar?.title =
             "PinLog : " + application.applicationInfo.loadLabel(application.packageManager)
-        Toast.makeText(
-            applicationContext,
-            "${PinLog.getPinLogsCount()} logs found.",
-            Toast.LENGTH_SHORT
-        ).show()
+        PinLog
+        showCount()
         loadLogs()
+    }
+
+    private fun showCount() {
+        PinLog.getPinLogsCount().also {
+            if (it > 0) Toast.makeText(
+                applicationContext,
+                "$it log(s) found.",
+                Toast.LENGTH_SHORT
+            ).show()
+        }
     }
 
     private fun loadLogs() = CoroutineScope(Dispatchers.IO).launch {
@@ -143,6 +150,13 @@ class PinLogDebugActivity : AppCompatActivity(), SearchView.OnQueryTextListener 
             } else logsAdapter.clearSuggestions()
         }
         return false
+    }
+
+    override fun onBackPressed() {
+        super.onBackPressed()
+        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.LOLLIPOP) {
+            finishAndRemoveTask()
+        } else finish()
     }
 
 }

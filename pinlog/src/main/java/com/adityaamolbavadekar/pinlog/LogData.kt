@@ -16,7 +16,7 @@
 
 package com.adityaamolbavadekar.pinlog
 
-data class LogData(
+internal data class LogData(
         var TAG: String,
         var m: String?,
         var e: Throwable?,
