@@ -1,2 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
-<resources></resources>
+<resources>
+
+    <style name="PinLogDebugActivity" parent="Theme.AppCompat">
+        <item name="colorPrimary">#000000</item>
+        <item name="colorPrimaryDark">#000000</item>
+        <item name="colorControlNormal">#FFFFFF</item>
+        <item name="colorLoadingBackground">#FFAB00</item>
+    </style>
+
+</resources>
