@@ -39,6 +39,6 @@ object PinLogActivityHolder {
         buildConfig: Class<*>? = null
     ): Boolean = PinLog.initialise(application, setDevLoggingEnabled, setDoStoreLogs, buildConfig)
 
-    internal fun getPinLogClass()= PinLog
+    fun getPinLogClass() = PinLog
 
 }
