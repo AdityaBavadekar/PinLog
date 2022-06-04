@@ -25,6 +25,7 @@ import com.adityaamolbavadekar.pinlog.database.ApplicationLogDatabaseHelper
 import com.adityaamolbavadekar.pinlog.database.ApplicationLogModel
 import com.adityaamolbavadekar.pinlog.extensions.clearListeners
 import com.adityaamolbavadekar.pinlog.extensions.submitLog
+import com.adityaamolbavadekar.pinlog.extensions.warn
 import org.json.JSONArray
 import org.json.JSONObject
 import java.io.BufferedWriter
@@ -918,6 +919,33 @@ object PinLog {
         }
         return instance(application)
     }
+
+
+    /**
+     * Initialises [PinLog] to override previous configurations
+     * Can only be called once else is ignored
+     * *Note : that the properties will be overwritten by new one if [PinLog] was previously initialised.*
+     * @param application Application. Commonly used inside [Application.onCreate] method of your [Application] class
+     * @return [Boolean] - If [PinLog] was previously initialised then `false` else `true`.
+     *
+     * */
+    @JvmStatic
+    fun initialiseOverride(
+        @NonNull application: Application,
+        setDevLoggingEnabled: Boolean = false,
+        setDoStoreLogs: Boolean = true,
+        buildConfig: Class<*>? = null
+    ): Boolean {
+        if (loggingStyle == null) {
+            loggingStyle = DefaultApplicationLoggingStyle()
+        }
+        app = application
+        isInitialised = true
+        warn { "Initialisation was overridden" }
+        onInitialisation()
+        return true
+    }
+
 
 
     /**
