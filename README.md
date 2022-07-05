@@ -7,8 +7,23 @@ PinLog is an easy-to-use and powerful android Logging Library. It is made by Adi
 
 PinLog supports storing logs for later retrieval, saving logs in a file, saving logs in a zip file and more.
 
+This project contains two modules i.e libraries namely  `pinlog` the main library and `pinlog-activity` the extension library.
+The main library does nit depend on the other, so you can use it directly from dependency.
+
+### Screenshots of `pinlog-activity` library
+
+|![](/Screenshot_20220604-163925.png)|![](Screenshot_20220604-164142_AdvanceLog.jpg)|
+|---|---|
+
 # Latest version
 For the latest version and a complete changelog, please see the Release page.
+# Download
+You can download a aar or .zip rom this repositor's releases page.
+
+Or you clone the whole repository with 
+```bash
+git clone https://github.com/AdityaBavadekar/PinLog
+```
 
 # Implementation 
 
@@ -117,6 +132,12 @@ class MainActivity : AppCompatActivity() {
 
 }
 ```
+
+# Dependencies used 
+Following are dependencies that were used for `pinlog-activity` module.
+- Kotlin Coroutines 
+- Recyclerview
+- ContraintLayout
 
 # Author
 [@Aditya Bavadekar](https://github.com/AdityaBavadekar) on GitHub 
