@@ -14,6 +14,8 @@
  *   limitations under the License.
  ******************************************************************************/
 
+@file:Suppress("unused")
+
 package com.adityaamolbavadekar.pinlog.extensions
 
 import android.content.Context
@@ -139,9 +141,7 @@ fun Context.logD(s: String?, throwable: Throwable?) {
     PinLog.logD(getName(), s, throwable ?: Exception(""))
 }
 
-
 /*Others*/
-
 private fun Context.getName(): String {
     return this.javaClass.simpleName
 }

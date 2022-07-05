@@ -30,14 +30,14 @@ import java.util.*
 class DefaultApplicationLoggingStyle : LoggingStyle() {
 
     override fun getFormattedLogData(
-            TAG: String,
-            m: String,
-            e: Throwable?,
-            dateLong: Long,
-            level: PinLog.LogLevel,
-            VERSION_NAME: String,
-            VERSION_CODE: String,
-            PACKAGE_NAME: String
+        TAG: String,
+        m: String,
+        e: Throwable?,
+        dateLong: Long,
+        level: PinLog.LogLevel,
+        VERSION_NAME: String,
+        VERSION_CODE: String,
+        PACKAGE_NAME: String
     ): String {
         var string =
             "Vr/[${VERSION_NAME}] " + "${Date(dateLong)}" + "/ " + "${level.SHORT_NAME}/" + "$TAG : " + m

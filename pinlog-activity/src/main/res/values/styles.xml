@@ -20,9 +20,14 @@
         <item name="colorPrimary">#6200EA</item>
         <item name="colorPrimaryDark">#6200EA</item>
         <item name="colorControlNormal">#000000</item>
-        <item name="colorLoadingBackground">#0091EA</item>
+        <item name="colorLoadingBackground">#6200EA</item>
+        <item name="colorCodeBackground">#6200EA</item>
+        <item name="colorScrollbar">#FBE9E7</item>
+        <item name="android:windowBackground">@drawable/splash</item>
     </style>
 
     <attr name="colorLoadingBackground" format="color" />
+    <attr name="colorCodeBackground" format="color" />
+    <attr name="colorScrollbar" format="color" />
 
 </resources>

@@ -16,8 +16,9 @@
 
 package com.adityaamolbavadekar.pinlogactivity
 
+import android.content.ClipData
+import android.content.ClipboardManager
 import android.content.Context
-import android.text.TextUtils
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -36,19 +37,34 @@ internal class LogsAdapter : RecyclerView.Adapter<LogsAdapter.LogHolder>() {
             val textViewLogLevel = view.findViewById<TextView>(R.id.textView1)
             val textViewLog = view.findViewById<TextView>(R.id.textView2)
             textViewLogLevel.text = logItem.LOG_LEVEL.toText
-            textViewLog.text = logItem.LOG
+
             var isExpanded = false
+            textViewLog.text = logItem.LOG
+
             view.setOnClickListener {
-                if (!isExpanded) {
-                    isExpanded = true
-                    textViewLog.maxLines = Integer.MAX_VALUE
-                    textViewLog.ellipsize = TextUtils.TruncateAt.END
-                } else {
-                    isExpanded = false
-                    textViewLog.maxLines = 5
-                    textViewLog.ellipsize = TextUtils.TruncateAt.END
+
+                if (textViewLog.lineCount > 20) {
+                    when {
+                        !isExpanded -> {
+                            isExpanded = true
+                            textViewLog.maxLines = Integer.MAX_VALUE
+                        }
+                        isExpanded -> {
+                            isExpanded = false
+                            textViewLog.maxLines = 30
+                        }
+                    }
+
                 }
             }
+            view.setOnLongClickListener { copyLog(logItem) }
+        }
+
+        private fun copyLog(logItem: ApplicationLogModel): Boolean {
+            val c = view.context.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
+            c.setPrimaryClip(ClipData.newPlainText("log", logItem.LOG))
+            Toast.makeText(view.context, view.context.getString(R.string.copied_to_clipboard), Toast.LENGTH_SHORT).show()
+            return true
         }
 
         companion object {
@@ -64,15 +80,30 @@ internal class LogsAdapter : RecyclerView.Adapter<LogsAdapter.LogHolder>() {
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): LogHolder =
         LogHolder.from(parent)
 
-
     override fun onBindViewHolder(holder: LogHolder, position: Int) =
         holder.bind(itemsList[position])
 
     override fun getItemCount(): Int = itemsList.size
 
-    fun sortByTag() {
-        itemsList.sortBy { it.TAG }
-        notifyDataSetChanged()
+    fun filterTag(tag: String, context: Context) {
+        val toast = Toast.makeText(
+            context,
+            context.getString(R.string.no_results_found),
+            Toast.LENGTH_SHORT
+        )
+        val results = mutableListOf<ApplicationLogModel>()
+        backupItemsList.forEach {
+            if (it.TAG.contains(tag, true)) {
+                results.add(it)
+            }
+        }
+        if (results.isEmpty()) {
+            toast.show()
+        } else {
+            clearList()
+            itemsList.addAll(results)
+            notifyDataSetChanged()
+        }
     }
 
     fun sortByLogLevel() {
@@ -80,21 +111,29 @@ internal class LogsAdapter : RecyclerView.Adapter<LogsAdapter.LogHolder>() {
         notifyDataSetChanged()
     }
 
+
     fun sortById() {
+        clearList()
+        itemsList.addAll(backupItemsList)
         itemsList.sortBy { it.id }
         notifyDataSetChanged()
     }
 
     fun search(s: String, context: Context) {
+        val toast = Toast.makeText(
+            context,
+            context.getString(R.string.no_results_found),
+            Toast.LENGTH_SHORT
+        )
         val results = mutableListOf<ApplicationLogModel>()
         backupItemsList.forEach {
             if (it.LOG.contains(s, true) || it.LOG_LEVEL.toText.contains(s, true)) {
                 results.add(it)
             }
         }
-        if (results.isEmpty()) Toast.makeText(context, "No results found", Toast.LENGTH_SHORT)
-            .show()
-        else {
+        if (results.isEmpty()) {
+            toast.show()
+        } else {
             clearList()
             itemsList.addAll(results)
             notifyDataSetChanged()

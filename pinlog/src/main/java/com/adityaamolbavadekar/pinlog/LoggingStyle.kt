@@ -16,8 +16,6 @@
 
 package com.adityaamolbavadekar.pinlog
 
-import android.content.Context
-
 
 /**
  * Created by Aditya Bavadekar on 18 May 2022
@@ -30,26 +28,21 @@ import android.content.Context
  * */
 abstract class LoggingStyle {
 
-    private var context:Context? =null
-
-    constructor()
-
     /**
      * Called before storing log to Database.
      *
      * *Default implementation is [DefaultApplicationLoggingStyle.getFormattedLogData]*
      * */
     abstract fun getFormattedLogData(
-            TAG: String,
-            m: String,
-            e: Throwable?,
-            dateLong: Long,
-            level: PinLog.LogLevel,
-            VERSION_NAME: String,
-            VERSION_CODE: String,
-            PACKAGE_NAME: String
+        TAG: String,
+        m: String,
+        e: Throwable?,
+        dateLong: Long,
+        level: PinLog.LogLevel,
+        VERSION_NAME: String,
+        VERSION_CODE: String,
+        PACKAGE_NAME: String
     ): String
-
 
 
 }

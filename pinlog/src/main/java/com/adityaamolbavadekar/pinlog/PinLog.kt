@@ -18,25 +18,35 @@
 
 package com.adityaamolbavadekar.pinlog
 
+import android.annotation.SuppressLint
 import android.app.Application
 import android.content.Context
 import android.content.Intent
+import android.content.SharedPreferences
+import android.content.pm.ApplicationInfo
+import android.content.pm.PackageManager
+import android.content.res.Configuration
+import android.net.Uri
+import android.os.Build
+import android.os.Environment
 import android.util.Log
 import androidx.annotation.NonNull
+import androidx.core.content.FileProvider
 import androidx.core.content.pm.PackageInfoCompat
 import com.adityaamolbavadekar.pinlog.database.ApplicationLogDatabaseHelper
 import com.adityaamolbavadekar.pinlog.database.ApplicationLogModel
 import com.adityaamolbavadekar.pinlog.extensions.clearListeners
 import com.adityaamolbavadekar.pinlog.extensions.submitLog
+import com.adityaamolbavadekar.pinlog.installation.Installation
 import org.json.JSONArray
 import org.json.JSONObject
-import java.io.BufferedWriter
+import java.io.BufferedReader
 import java.io.File
-import java.io.FileWriter
+import java.io.InputStreamReader
+import java.text.SimpleDateFormat
 import java.util.*
 import java.util.concurrent.ExecutorService
 import java.util.concurrent.Executors
-import kotlin.math.pow
 import kotlin.system.exitProcess
 
 
@@ -100,6 +110,7 @@ object PinLog {
 
     private var isDevLoggingEnabled = false
     private var buildConfigClass: Class<*>? = null
+    private var buildConfigClassData: JSONObject? = null
     private var shouldStoreLogs: Boolean = true
     private var isInitialised: Boolean = false
     private var app: Application? = null
@@ -107,8 +118,12 @@ object PinLog {
     private var pinLoggerService: ExecutorService? = null
     private var loggingStyle: LoggingStyle? = null
     private var defaultExceptionHandler: Thread.UncaughtExceptionHandler? = null
+    private var customData: JSONObject = JSONObject()
     private var exceptionHandlerEnabled: Boolean = false
-    private var sendToEmail: String? = null
+    private var crashEmailTo: Array<String> = arrayOf()
+    private var crashMessage: String? = null
+    private var crashSubject: String? = null
+    private var crashMaxBuffer: Boolean = false
     private var stringLogListeners: MutableList<OnStringLogAddedListener> = mutableListOf()
     private var logListeners: MutableList<OnLogAddedListener> = mutableListOf()
     private var callerPackageName: String = ""
@@ -132,22 +147,13 @@ object PinLog {
 
     private fun onInitialisation() {
         logInfo("Dev Logging is enabled")
+        Installation.id(getContext())
         getAppInfo()
         logInfo("PinLog was initialised successfully for $callerAppName[${callerPackageName}] from ${getContext().javaClass.simpleName}")
         if (applicationLogDataSource == null) {
             applicationLogDataSource = ApplicationLogDatabaseHelper(getContext())
         }
         collectBuildConfigData()
-        setupExceptionHandler()
-    }
-
-    private fun setupExceptionHandler() {
-        if (exceptionHandlerEnabled) {
-            if (getContext().mainLooper.thread == Thread.currentThread()) {
-                defaultExceptionHandler = Thread.getDefaultUncaughtExceptionHandler()
-                Thread.setDefaultUncaughtExceptionHandler(PinLogUncaughtExceptionHandler())
-            }
-        }
     }
 
     private fun getContext(): Context {
@@ -377,7 +383,7 @@ object PinLog {
      *
      * */
     @JvmStatic
-    fun getStackTraceString(tr: Throwable): String {
+    fun getStackTraceString(tr: Throwable?): String {
         return Log.getStackTraceString(tr)
     }
 
@@ -712,7 +718,7 @@ object PinLog {
      * while creating that file.
      *
      * */
-    fun getAllPinLogsInFile(extraEndingLine: String?): File? {
+    fun getAllPinLogsInFile(extraEndingLine: String? = null): File? {
         return getAllPinLogsInFile(fileName = null, extraEndingLine = extraEndingLine)
     }
 
@@ -733,57 +739,54 @@ object PinLog {
      * while creating that file.
      *
      * */
+    @SuppressLint("SetWorldReadable")
     @JvmStatic
     fun getAllPinLogsInFile(fileName: String?, extraEndingLine: String?): File? {
         if (!isAppInitialised()) {
             return null
         }
-        val logsList = getAllPinLogsAsStringList()
-        if (logsList.isNotEmpty()) {
-            val dirPath: String =
-                getContext().getExternalFilesDir(null)!!.absolutePath + "/ApplicationLogFiles"
+
+        var logsList = getAllPinLogsAsString()
+
+        if (logsList != null) {
+
             try {
                 //Create a directory if it doesn't already exist.
-                val filePath = File(dirPath)
+                val filePath = getLogFilesDir()
                 if (!filePath.exists()) {
-                    if (!filePath.mkdirs()) {
-                        logW(
-                            CLASS_TAG,
-                            "Error occurred while creating directory for log files."
-                        )
+                    if (!filePath.mkdir()) {
+                        logWarning("Error occurred while creating directory for log file.")
                         return null
                     }
                 }
 
                 //Create a new file with file name
-                val logFile: File = if (fileName == null) {
-                    File(
-                        filePath,
-                        "${callerPackageName}_LOG_FILE_${System.currentTimeMillis()}"
-                    )
-                } else File(filePath, fileName)
+                val logsFile = File(filePath, fileName ?: getFileName())
+                logsFile.createNewFile()
 
-                val writer = FileWriter(logFile, true)
-                val bufferedWriter = BufferedWriter(writer, 4 * 1024.0.pow(2.0).toInt())
-                for (logString in logsList) {
-                    bufferedWriter.write(logString + "\n")
-                }
+                extraEndingLine?.let { logsList = logsList!! + "\n" + it }
+                logsFile.writeText(logsList!!)
+                logsFile.setReadable(true, false)
+                logInfo("logs were written to file : ${logsFile.name}")
+                logInfo("The logs are save in a file - ${logsFile.absolutePath}")
 
-                extraEndingLine?.let {
-                    bufferedWriter.write(it + "\n")
-                }
-
-                writer.flush()
-                writer.close()
-
-                logI(CLASS_TAG, "The logs are save in a file - ${logFile.absolutePath}")
-
-                return logFile
+                return logsFile
             } catch (e: Exception) {
                 e.printStackTrace()
             }
         }
         return null
+    }
+
+    /**
+     * @return Uri for the provided file if it exists in PinLogs logs dir.
+     * */
+    fun getUriForFile(file: File): Uri? {
+        return try {
+            FileProvider.getUriForFile(getContext(), getAuthority(), file)
+        } catch (e: Exception) {
+            Uri.fromFile(file)
+        }
     }
 
     /**
@@ -829,7 +832,8 @@ object PinLog {
      * *Note : Logs are stored for max time-period of seven days of logging.
      * After that they are deleted by [PinLog] service.*
      *
-     * @param boolean Whether to store the logs
+     * @param boolean
+     * n Whether to store the logs
      *
      * */
     fun setDoStoreLogs(boolean: Boolean) {
@@ -944,26 +948,126 @@ object PinLog {
     }
 
     /**
-     * If set to `true`, uses built-in PinLog [Thread.UncaughtExceptionHandler] , this
-     * is created in a way that it starts a Share Intent with logs.
-     * *Defaults to `false`
+     * If set then uses built-in `PinLog Thread.UncaughtExceptionHandler` which
+     * is created in a way that it starts a Share Intent mostly starts default EmailApp
+     * with logsFile as an attachment. You can provide other info like [toEmails], [message]
+     * and [subject] which will appear on the Email Intent extras. If you set [maxBuffer] to `true`
+     * number of logcat lines included in the report will be 8000,
+     * default is 200 lines which is sufficient for most developers.
      *
-     * If you are setting [enabled] to `true` then also add toEmail
+     * You can even provide custom data using [CustomLogFileData.put] methods.
+     *
+     * If you want this Handler to be disable then use [disablePinLogExceptionHandler].
+     *
+     * @see CustomLogFileData
+     * @see disablePinLogExceptionHandler
      *
      * */
     @JvmStatic
-    fun setPinLogExceptionHandlerEnabled(enabled: Boolean, toEmail: String?) {
-        if (exceptionHandlerEnabled && !enabled) {
-            if (Thread.getDefaultUncaughtExceptionHandler() == PinLogUncaughtExceptionHandler()) {
-                Thread.setDefaultUncaughtExceptionHandler(defaultExceptionHandler)
-            }
-        } else {
-            exceptionHandlerEnabled = enabled
-            sendToEmail = toEmail
-            logInfo("Exception handling is setTo PinLog")
-            setupExceptionHandler()
+    fun setupPinLogExceptionHandler(
+        toEmails: Array<String>?,
+        message: String?,
+        subject: String?,
+        maxBuffer: Boolean = false
+    ) {
+        toEmails?.let { crashEmailTo = it }
+        crashMessage = message
+        crashSubject = subject
+        crashMaxBuffer = maxBuffer
+        logInfo("Exception handling is setTo PinLog")
+        setupExceptionHandler()
+    }
+
+
+    /**
+     * If you have set the [setupPinLogExceptionHandler].
+     * Then this customData will be added to the logsFile.
+     *
+     * */
+    class CustomLogFileData {
+
+        fun put(name: String, value: Boolean): JSONObject {
+            return customData.put(name, value)
+        }
+
+        fun put(name: String, value: Double): JSONObject {
+            return customData.put(name, value)
+        }
+
+        fun put(name: String, value: Int): JSONObject {
+            return customData.put(name, value)
+        }
+
+        fun put(name: String, value: Long): JSONObject {
+            return customData.put(name, value)
+        }
+
+        fun put(name: String, value: Any?): JSONObject {
+            return customData.put(name, value)
+        }
+
+        fun get(name: String): Any {
+            return customData.get(name)
+        }
+
+        fun getBoolean(name: String): Boolean {
+            return customData.getBoolean(name)
+        }
+
+        fun getDouble(name: String): Double {
+            return customData.getDouble(name)
+        }
+
+        fun getInt(name: String): Int {
+            return customData.getInt(name)
+        }
+
+        fun getLong(name: String): Long {
+            return customData.getLong(name)
+        }
+
+        fun getString(name: String): String {
+            return customData.getString(name)
+        }
+
+        fun getJSONArray(name: String): JSONArray {
+            return customData.getJSONArray(name)
+        }
+
+        fun getJSONObject(name: String): JSONObject {
+            return customData.getJSONObject(name)
+        }
+
+        fun names(): JSONArray? {
+            return customData.names()
         }
     }
+
+    /**
+     *
+     * Disables built-in `PinLog Thread.UncaughtExceptionHandler` if it
+     * was previously set using [setupPinLogExceptionHandler]. And sets
+     * the handler to previous [Thread.getDefaultUncaughtExceptionHandler].
+     *
+     * */
+    @JvmStatic
+    fun disablePinLogExceptionHandler() {
+        handleToDefaultExceptionHandler()
+    }
+
+    private fun setupExceptionHandler() {
+        defaultExceptionHandler = Thread.getDefaultUncaughtExceptionHandler()
+        Thread.setDefaultUncaughtExceptionHandler(
+            PinLogUncaughtExceptionHandler(
+                crashEmailTo, crashSubject, crashMessage
+            )
+        )
+    }
+
+    private fun handleToDefaultExceptionHandler() {
+        Thread.setDefaultUncaughtExceptionHandler(defaultExceptionHandler)
+    }
+
 
     /**
      * Initialises [PinLog] in Debug mode that is with all Debug Properties like [isDevLoggingEnabled] to true.
@@ -1027,7 +1131,7 @@ object PinLog {
     }
 
     private fun collectBuildConfigData() {
-        val data = JSONObject()
+        buildConfigClassData = JSONObject()
         buildConfigClass?.let { someClass ->
             val fields = someClass.fields
             for (field in fields) {
@@ -1035,11 +1139,14 @@ object PinLog {
                     val value: Any? = field[null]
 
                     value?.let {
-                        logI("BuildConfig", " ${field.name} -> $it ")
+                        logInfo(" ${field.name} -> $it ")
                         if (field.type.isArray) {
-                            data.put(field.name, JSONArray(listOf(*it as Array<*>)))
+                            buildConfigClassData!!.put(
+                                field.name,
+                                JSONArray(listOf(*it as Array<*>))
+                            )
                         } else {
-                            data.put(field.name, it)
+                            buildConfigClassData!!.put(field.name, it)
                         }
                     }
 
@@ -1050,44 +1157,271 @@ object PinLog {
                 }
             }
         }
-        if (data.has("DEBUG")) {
-            val isDebug = data.getBoolean("DEBUG")
-            if (isDebug) logI(CLASS_TAG, "Application Build is of Type Debug")
+        if (buildConfigClassData!!.has("DEBUG")) {
+            val isDebug = buildConfigClassData!!.getBoolean("DEBUG")
+            if (isDebug) logInfo("Application Build is of Type Debug")
         }
     }
 
-    private class PinLogUncaughtExceptionHandler : Thread.UncaughtExceptionHandler {
+    private class PinLogUncaughtExceptionHandler(
+        private val toEmail: Array<String>,
+        private val subject: String?,
+        private val message: String?
+    ) : Thread.UncaughtExceptionHandler {
 
         override fun uncaughtException(t: Thread, e: Throwable) {
             logWarning("An UncaughtException was caught by PinLog in ${t.name}")
             val stackTrace = getStackTraceString(e)
-            logE("PinLogExceptionInfo", stackTrace, e)
+            logError("$stackTrace \n$e")
             try {
-                val i = Intent(Intent.ACTION_SEND)
-                i.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-                sendToEmail?.let {
-                    i.putExtra(Intent.EXTRA_EMAIL, it)
-                }
-                val text =
-                    "\n$callerAppName crashed due to an unknown error on ${Date()}" +
-                            "\n\n" +
-                            "$callerAppName crashed unexpectedly" +
-                            "\n\n" +
-                            "**Crash Information**\n" +
-                            "------------------------beginning of crash\n" +
-                            stackTrace +
-                            "\n------------------------end of crash\n"
-                i.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
-                i.putExtra(Intent.EXTRA_TEXT, text)
-                i.type = "text/plain"
-                getContext().applicationContext.startActivity(i)
-                exitProcess(0)
-
+                CrashReporter().sendCrashReportWithEmail(
+                    t,
+                    e,
+                    toEmail,
+                    subject,
+                    message
+                )
             } catch (e: Exception) {
-                e.printStackTrace()
+                logWarning("PinLog was unable to handle the exception.")
                 defaultExceptionHandler?.uncaughtException(t, e)
             }
         }
+    }
+
+    class CrashReporter {
+
+        private var crashData: JSONObject = JSONObject()
+
+        fun createReport(
+            t: Thread,
+            e: Throwable?,
+        ): JSONObject {
+            buildCrashData(t, e, customData)
+            return crashData
+        }
+
+        fun sendCrashReportWithEmail(
+            t: Thread,
+            e: Throwable?,
+            toEmail: Array<String>,
+            subject: String?,
+            message: String?,
+        ) {
+            buildCrashData(t, e, customData)
+            val attachmentUri = createLogsFile()
+            val i = createSendIntent(arrayListOf(attachmentUri), toEmail, subject, message)
+            i.selector = createResolveIntent()
+            logInfo("Granting permissions")
+            grantPermission(i, attachmentUri)
+            createPendingIntentAndLaunch(arrayOf(i))
+        }
+
+        private fun createSendIntent(
+            attachments: ArrayList<Uri>,
+            toEmail: Array<String>? = arrayOf(),
+            subject: String? = null,
+            message: String? = null
+        ): Intent {
+            return Intent(Intent.ACTION_SEND_MULTIPLE).apply {
+                putExtra(Intent.EXTRA_SUBJECT, subject ?: "Application \"$callerAppName\" crashed.")
+                putParcelableArrayListExtra(Intent.EXTRA_STREAM, attachments)
+                putExtra(Intent.EXTRA_EMAIL, toEmail)
+                putExtra(
+                    Intent.EXTRA_TEXT,
+                    "Occurrence : " + getDate() + if (message != null) "\n$message" else ""
+                )
+                addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                addFlags(Intent.FLAG_ACTIVITY_NO_HISTORY)
+            }
+        }
+
+        private fun createResolveIntent(): Intent {
+            val i = Intent(Intent.ACTION_SENDTO)
+            i.data = Uri.parse("mailto:")
+            i.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+            return i
+        }
+
+        private fun createPendingIntentAndLaunch(
+            intents: Array<Intent>
+        ) {
+            logInfo("Starting intent")
+            getContext().startActivity(intents.first())
+            this.crashData = JSONObject()
+            logInfo("Ending application")
+            exitProcess(-2)
+        }
+
+        private fun grantPermission(i: Intent, attachmentUri: Uri) {
+            try {
+                for (resolveInfo in getContext().packageManager.queryIntentActivities(
+                    i,
+                    PackageManager.MATCH_DEFAULT_ONLY
+                )) {
+                    getContext().grantUriPermission(
+                        resolveInfo.resolvePackageName,
+                        attachmentUri,
+                        Intent.FLAG_GRANT_READ_URI_PERMISSION
+                    )
+                    logInfo("Granted permission to : ${resolveInfo.resolvePackageName}")
+                }
+            } catch (e: Exception) {
+            }
+        }
+
+        companion object CrashDataKeys {
+            const val APP_NAME = "APP_NAME"
+            const val INSTALLATION_ID = "INSTALLATION_ID"
+            const val PACKAGE_NAME = "PACKAGE_NAME"
+            const val CRASH_DATE = "CRASH_DATE"
+            const val DATA_DIR = "DATA_DIR"
+            const val LOG_FILES = "LOG_FILES"
+            const val THREAD_NAME = "THREAD_NAME"
+            const val STACKTRACE = "STACKTRACE"
+            const val CAUSE = "CAUSE"
+            const val MESSAGE = "MESSAGE"
+            const val LOGS = "LOGS"
+            const val MODEL = "MODEL"
+            const val MANUFACTURER = "MANUFACTURER"
+            const val DEVICE = "DEVICE"
+            const val TYPE = "TYPE"
+            const val RELEASE = "RELEASE"
+            const val CODENAME = "CODENAME"
+            const val SDK_INT = "SDK_INT"
+            const val DEBUG = "DEBUG"
+            const val VERSION_CODE = "VERSION_CODE"
+            const val VERSION_NAME = "VERSION_NAME"
+            const val PREFS = "PREFS"
+            const val ORIENTATION = "ORIENTATION"
+            const val CUSTOM_DATA = "CUSTOM_DATA"
+        }
+
+        private fun buildCrashData(
+            t: Thread, e: Throwable?, customLogsFileData: JSONObject = JSONObject()
+        ) {
+            crashData = JSONObject().apply {
+                put("APP_NAME", callerAppName)
+                put("INSTALLATION_ID", Installation.id(getContext()))
+                put("PACKAGE_NAME", callerPackageName)
+                put("CRASH_DATE", getDate())
+                put("CUSTOM_DATA", customLogsFileData)
+                put("DATA_DIR", Environment.getDataDirectory())
+                put("LOG_FILES", getLogsFilesNames() ?: "No Files")
+                put("THREAD_NAME", t.name)
+                put("STACKTRACE", getStackTraceString(e))
+                put("CAUSE", e?.cause ?: "No cause")
+                put("MESSAGE", e?.message ?: "No message")
+                put("LOGS", getAllPinLogsAsString() ?: "None")
+                put("MODEL", Build.MODEL)
+                put("MANUFACTURER", Build.MANUFACTURER)
+                put("DEVICE", Build.DEVICE)
+                put("TYPE", Build.TYPE)
+                put("RELEASE", Build.VERSION.RELEASE)
+                put("CODENAME", Build.VERSION.CODENAME)
+                put("SDK_INT", Build.VERSION.SDK_INT)
+                put(
+                    "DEBUG",
+                    (0 != getContext().applicationInfo.flags and ApplicationInfo.FLAG_DEBUGGABLE)
+                )
+                put("VERSION_CODE", callerVersionCode)
+                put("VERSION_NAME", callerVersionName)
+                put("PREFS", getPrefsInfo())
+            }
+            val orientation = when (getContext().resources.configuration.orientation) {
+                Configuration.ORIENTATION_LANDSCAPE -> "ORIENTATION_LANDSCAPE"
+                Configuration.ORIENTATION_PORTRAIT -> "ORIENTATION_PORTRAIT"
+                else -> "ORIENTATION_UNDEFINED"
+            }
+            crashData.put("ORIENTATION", orientation)
+            buildConfigClassData?.let { crashData.put("BUILD_CONFIG", it) }
+            getLogcat()
+        }
+
+        private fun getLogsFilesNames(): String? {
+            var names = ""
+            getLogFilesDir().listFiles()?.forEach { names += it.name + "\n |" }
+            return if (names.trim().isEmpty()) null
+            else names
+        }
+
+        private fun getPrefsInfo(): JSONObject {
+            val entries = getDefaultSharedPreferences().all
+            return JSONObject().put("DEFAULT_SHARED_PREFS", JSONObject(entries))
+        }
+
+        private fun getDefaultSharedPreferences(): SharedPreferences {
+            return getContext()
+                .getSharedPreferences(callerPackageName + "_preferences", Context.MODE_PRIVATE)
+        }
+
+        private fun getLogcat() {
+            try {
+                val p = Runtime.getRuntime().exec("logcat -d")
+                val logcat =
+                    if (!crashMaxBuffer) {
+                        BufferedReader(
+                            InputStreamReader(p.inputStream),
+                            DEFAULT_LOG_BUFFER_SIZE
+                        )
+                    } else {
+                        BufferedReader(InputStreamReader(p.inputStream))
+                    }
+                val str = logcat.readText()
+                logcat.close()
+                crashData.put("*******APPLICATION_LOGCAT_LINES*******", str)
+            } catch (e: Exception) {
+                logWarning("Could'nt read logcat : $e")
+            }
+        }
+
+        private fun createLogsFile(): Uri {
+            logWarning("Saving logs in a file.")
+            val logsFolder = getLogFilesDir()
+            if (!logsFolder.exists()) logsFolder.mkdir()
+            val logsFile = File(
+                logsFolder, getFileName()
+            )
+            logsFile.createNewFile()
+            return writeLogsInFile(logsFile)
+        }
+
+        @SuppressLint("SetWorldReadable")
+        private fun writeLogsInFile(logsFile: File): Uri {
+            logsFile.writeText(crashData.toString())
+            logsFile.setReadable(true, false)
+            logInfo("logs were written to file : ${logsFile.name}")
+            return try {
+                FileProvider.getUriForFile(getContext(), getAuthority(), logsFile)
+            } catch (e: Exception) {
+                Uri.fromFile(logsFile)
+            }
+        }
+
+    }
+
+    private fun getDate(format: String = DATE_FORMAT): String {
+        return SimpleDateFormat(format, Locale.ENGLISH).format(Date())
+    }
+
+    private fun getAuthority(): String {
+        return callerPackageName + PROVIDER_SUFFIX
+    }
+
+    private fun getFileName(): String {
+        var name = ""
+        val n = callerAppName.split(" ")
+        n.forEach {
+            name += it.toUpperCase(Locale.ROOT) + "_"
+        }
+        return name + "_" + getDate(FILE_DATE_FORMAT) + "_LOG.txt"
+    }
+
+    /**
+     * Returns file where all log files will be/are stored.
+     * You can use this to find if user has your app's log files on device.
+     * */
+    fun getLogFilesDir(): File {
+        return File(getContext().filesDir, LOGS_DIR_NAME)
     }
 
     /**
@@ -1097,6 +1431,17 @@ object PinLog {
      *
      * */
     internal const val CLASS_TAG = "PinLog"
+
+    /**
+     * Same as one defined in [R.xml.provider_paths]
+     * */
+    private const val LOGS_DIR_NAME = "logs_app_dir"
+    private const val DATE_FORMAT = "dd.MM.yyyy h:mm:ss a z"
+    private const val FILE_DATE_FORMAT = "dd_MM_yyyy_h_mm_a_a"
+    private const val PROVIDER_SUFFIX = ".pinlog.provider"
+    private const val DEFAULT_LOG_BUFFER_SIZE = 207
+    private const val LONG_LOG_BUFFER_SIZE = 8192
+
 
 }
 

@@ -1,5 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
-<!--
+<?xml version="1.0" encoding="utf-8"?><!--
   ~     Copyright (c) 2022  Aditya Bavadekar
   ~
   ~     Licensed under the Apache License, Version 2.0 (the "License");
@@ -21,13 +20,27 @@
     <item
         android:id="@+id/searchLogs"
         android:icon="@drawable/ic_search"
-        android:title="Search"
+        android:title="@string/search"
         app:actionViewClass="androidx.appcompat.widget.SearchView"
         app:showAsAction="always|collapseActionView" />
+
     <item
         android:id="@+id/sortLogs"
         android:icon="@drawable/ic_filter"
-        android:title="Sort by Log Level"
-        app:showAsAction="always" />
+        android:title="@string/sort_by_log_level"
+        app:showAsAction="ifRoom" />
+
+    <item
+        android:id="@+id/applyTagFilter"
+        android:title="@string/apply_tag_filter" />
+
+    <item
+        android:id="@+id/export"
+        android:title="@string/export_logs" />
+
+    <item
+        android:id="@+id/info"
+        android:title="@string/info" />
+
 
 </menu>

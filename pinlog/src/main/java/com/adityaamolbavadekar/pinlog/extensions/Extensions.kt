@@ -34,27 +34,36 @@ fun Application.initPinLoggerInReleaseMode(): Boolean {
     return PinLog.initialiseRelease(this)
 }
 
+fun installPinLoggerExceptionHandler(
+    toEmails: Array<String>? = null,
+    message: String? = null,
+    subject: String? = null,
+    maxBuffer: Boolean = false
+) {
+    PinLog.setupPinLogExceptionHandler(toEmails, message, subject, maxBuffer)
+}
+
 inline fun debug(m: () -> String) {
-    PinLog.logD("?", m.invoke())
+    PinLog.logD("?", m())
 }
 
 inline fun warn(m: () -> String) {
-    PinLog.logW("?", m.invoke())
+    PinLog.logW("?", m())
 }
 
 inline fun info(m: () -> String) {
-    PinLog.logI("?", m.invoke())
+    PinLog.logI("?", m())
 }
 
 inline fun error(m: () -> String) {
-    PinLog.logE("?", m.invoke())
+    PinLog.logE("?", m())
 }
 
 inline fun error(e: Exception, m: () -> String) {
-    PinLog.logE("?", m.invoke(), e)
+    PinLog.logE("?", m(), e)
 }
 
-fun MutableList<PinLog.OnStringLogAddedListener>.submitLog(log: String) {
+internal fun MutableList<PinLog.OnStringLogAddedListener>.submitLog(log: String) {
     for (it in this) {
         try {
             it.onLogAdded(log)
@@ -64,7 +73,7 @@ fun MutableList<PinLog.OnStringLogAddedListener>.submitLog(log: String) {
     }
 }
 
-fun MutableList<PinLog.OnLogAddedListener>.submitLog(log: ApplicationLogModel) {
+internal fun MutableList<PinLog.OnLogAddedListener>.submitLog(log: ApplicationLogModel) {
     for (it in this) {
         try {
             it.onLogAdded(log)
@@ -91,7 +100,7 @@ fun Array<Int>.toStringsList(): Array<String> {
     return list.toTypedArray()
 }
 
-fun <T> MutableList<T>.clearListeners() {
+internal fun <T> MutableList<T>.clearListeners() {
     if (this.isEmpty()) return
     while (this.size != 0) {
         this.removeAt(this.size - 1)

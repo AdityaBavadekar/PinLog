@@ -18,6 +18,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="?android:colorBackground"
     android:orientation="vertical"
     android:theme="@style/PinLogDebugActivity">
 
@@ -34,22 +35,22 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_centerInParent="true"
-            android:indeterminate="true" />
+            android:indeterminate="true"
+            android:indeterminateTint="@android:color/white" />
     </RelativeLayout>
 
 
     <ScrollView
+        android:id="@+id/emptyLayout"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:id="@+id/emptyLayout"
-        >
-
+        tools:visibility="gone">
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:gravity="center"
             android:layout_gravity="center"
+            android:gravity="center"
             android:orientation="vertical"
             android:paddingHorizontal="25dp"
             android:visibility="visible">
@@ -57,8 +58,8 @@
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:drawablePadding="15dp"
                 android:drawableStart="@drawable/ic_empty"
+                android:drawablePadding="15dp"
                 android:gravity="center"
                 android:padding="15dp"
                 android:text="@string/no_logs_yet"
@@ -80,13 +81,13 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="15dp"
-                android:background="?attr/colorLoadingBackground"
+                android:background="?attr/colorCodeBackground"
                 android:fontFamily="monospace"
                 android:gravity="center"
                 android:padding="15dp"
                 android:text="@string/code_initialise"
                 android:textAppearance="@style/TextAppearance.AppCompat.Medium"
-                android:textColor="?android:textColorPrimary"
+                android:textColor="@android:color/white"
                 android:textIsSelectable="true" />
 
             <TextView
@@ -102,13 +103,13 @@
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:background="?attr/colorLoadingBackground"
+                android:background="?attr/colorCodeBackground"
                 android:fontFamily="monospace"
                 android:gravity="center"
                 android:padding="15dp"
                 android:text="@string/code_text"
                 android:textAppearance="@style/TextAppearance.AppCompat.Medium"
-                android:textColor="?android:textColorPrimary"
+                android:textColor="@android:color/white"
                 android:textIsSelectable="true" />
 
         </LinearLayout>
@@ -119,9 +120,11 @@
         android:id="@+id/logsRecyclerView"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:fadeScrollbars="false"
-        android:scrollbarSize="5dp"
+        android:scrollbarAlwaysDrawVerticalTrack="true"
+        android:scrollbarSize="30dp"
+        android:scrollbarThumbVertical="@drawable/scrollbar_thumb"
         android:scrollbars="vertical"
-        tools:listitem="@layout/log_item" />
+        tools:listitem="@layout/log_item"
+        tools:visibility="visible" />
 
 </LinearLayout>

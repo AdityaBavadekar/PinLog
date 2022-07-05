@@ -22,6 +22,8 @@ import android.database.Cursor
 import android.database.DatabaseUtils
 import android.database.sqlite.SQLiteDatabase
 import android.database.sqlite.SQLiteOpenHelper
+import com.adityaamolbavadekar.pinlog.PinLog
+import com.adityaamolbavadekar.pinlog.PinLog.CLASS_TAG
 import com.adityaamolbavadekar.pinlog.database.ApplicationLogsContract.ApplicationLogEntry.COLUMN_NAME_CREATED
 import com.adityaamolbavadekar.pinlog.database.ApplicationLogsContract.ApplicationLogEntry.COLUMN_NAME_ID
 import com.adityaamolbavadekar.pinlog.database.ApplicationLogsContract.ApplicationLogEntry.COLUMN_NAME_LOG
@@ -29,8 +31,6 @@ import com.adityaamolbavadekar.pinlog.database.ApplicationLogsContract.Applicati
 import com.adityaamolbavadekar.pinlog.database.ApplicationLogsContract.ApplicationLogEntry.COLUMN_NAME_TAG
 import com.adityaamolbavadekar.pinlog.database.ApplicationLogsContract.ApplicationLogEntry.DATABASE_VERSION
 import com.adityaamolbavadekar.pinlog.database.ApplicationLogsContract.ApplicationLogEntry.TABLE_NAME
-import com.adityaamolbavadekar.pinlog.PinLog
-import com.adityaamolbavadekar.pinlog.PinLog.CLASS_TAG
 import com.adityaamolbavadekar.pinlog.extensions.toApplicationLogModel
 import com.adityaamolbavadekar.pinlog.extensions.toStringsList
 import java.util.*

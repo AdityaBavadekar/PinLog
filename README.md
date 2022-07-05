@@ -52,6 +52,9 @@ dependencies {
 	    <artifactId>pinlog</artifactId>
 	    <version>TAG</version>
 	</dependency>
+```
+
+```xml
 <!--Or if you want a DebugLogsActivity for 
      your app which shows list of logs add this instead-->
 	<dependency>

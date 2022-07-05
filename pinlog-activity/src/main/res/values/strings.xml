@@ -20,4 +20,27 @@
     <string name="no_logs_yet_main_content_two">*Use the following line in your code to a test.</string>
     <string name="code_initialise">PinLog.initialiseDebug(this)</string>
     <string name="code_text">PinLog.logI(\"MainActivity\",\n\"Hello World\")</string>
+    <string name="pinlog_title">PinLog : %1s</string>
+    <string name="pinlog_library">PinLog Library v%1s</string>
+    <string name="logs_found_formatted">%1d log(s) found.</string>
+    <string name="sort_by_log_level">Sort by Log Level</string>
+    <string name="info">Info</string>
+    <string name="export_logs">Export logs</string>
+    <string name="apply_tag_filter">Apply TAG filter</string>
+    <string name="cancel_sorting">Cancel sorting</string>
+    <string name="search">Search</string>
+    <string name="cancel">Cancel</string>
+    <string name="apply">Apply</string>
+    <string name="clear_filter">Clear filter</string>
+    <string name="okay">OK</string>
+    <string name="view_source">View Source</string>
+    <string name="choose_a_tag_value">Choose a TAG value</string>
+    <string name="no_results_found">No results found</string>
+    <string name="none">None</string>
+    <string name="no_tags_found_to_filter">No TAGs found to filter.</string>
+    <string name="pinlog_info">About : PinLog is an easy-to-use and powerful android Logging Library.\n\nAuthor: Aditya Bavadekar\n\nGitHub : github.com/AdityaBavadekar/PinLog\n\nApp : %1s</string>
+    <string name="copied_to_clipboard">Copied to clipboard</string>
+    <string name="application_logs">Application Logs</string>
+    <string name="hey_i_am_sharing_logs_with_you">Hey! I am sharing logs with you.</string>
+    <string name="repo_url_do_not_translate">https://github.com/AdityaBavadekar/PinLog</string>
 </resources>

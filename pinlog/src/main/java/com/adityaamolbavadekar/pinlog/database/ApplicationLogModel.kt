@@ -24,6 +24,7 @@ data class ApplicationLogModel(
     var created: Long = 0
 ) {
 
+    @Deprecated(message = "new property TAG has been added")
     constructor(id: Int, LOG: String, LOG_LEVEL: Int) : this(id, LOG, LOG_LEVEL, "", 0)
 
 }
