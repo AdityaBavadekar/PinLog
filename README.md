@@ -1,4 +1,4 @@
-![Version](https://img.shields.io/github/v/release/adityabavadekar/PinLog?label=PinLog%20&style=plastic374547970654465636f72653f6c6162656c3d546f617374547970654465636f7265253230267374796c653d706c6173746963)
+![Latest GitHub release ](https://img.shields.io/github/v/release/adityabavadekar/PinLog?label=PinLog)
 
 # What is PinLog?
 PinLog is an easy-to-use and powerful android Logging Library. It is made by Aditya Bavadekar.
