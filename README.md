@@ -20,7 +20,7 @@ For the latest version and a complete changelog, please see the Release page.
 # Download
 You can download a aar or .zip rom this repositor's releases page.
 
-Or you clone the whole repository with 
+Or you can clone the whole repository with 
 ```bash
 git clone https://github.com/AdityaBavadekar/PinLog
 ```
@@ -138,7 +138,8 @@ A sample called Pinlog Sample `pinlogsample` is included in the source, which
 demonstrates common and simple usage of PinLog library. 
 You can find debug-apks for same app in the latest relaeses.
 
-[View Sample App](https://github.com/AdityaBavadekar/PinLog/blob/master/pinlogsample)
+|[View Sample App](https://github.com/AdityaBavadekar/PinLog/blob/master/pinlogsample)|[Download Sample App](https://github.com/AdityaBavadekar/PinLog/releases/latest)|
+|--|--|
 
 # Dependencies used 
 Following are dependencies that were used for `pinlog-activity` module.
