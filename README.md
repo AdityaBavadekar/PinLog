@@ -8,7 +8,7 @@ PinLog is an easy-to-use and powerful android Logging Library. It is made by Adi
 PinLog supports storing logs for later retrieval, saving logs in a file, saving logs in a zip file and more.
 
 This project contains two modules i.e libraries namely  `pinlog` the main library and `pinlog-activity` the extension library.
-The main library does nit depend on the other, so you can use it directly from dependency.
+The main library does not depend on the other library, so you can use it directly from dependency.
 
 ### Screenshots of `pinlog-activity` library
 
