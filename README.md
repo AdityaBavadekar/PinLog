@@ -1,6 +1,39 @@
 ![Latest GitHub release ](https://img.shields.io/github/v/release/adityabavadekar/PinLog?label=PinLog)
 
 # What is PinLog?
+Using PinLog, you can store your logs in a sql database and also save them in a file without writing hundreds of lines of code. 
+```kt
+//Logs are automatically stored.
+PinLog.logI("MainActivity","onCreate")
+
+//Or create a report which contains 
+//PinLogs, applicationInfo, BuildConfig if was 
+//provided while initialisation and System logs.
+PinLog.CrashReporter().createReport(thread,exception)
+
+//Get stored logs 
+PinLog.getAllPinLogsAsStringList() 
+
+//Delete stored logs 
+PinLogs.deleteAllPinLogs()
+```
+
+
+PinLog-Activity is
+an extension library for PinLog usefull for debuging and finding bug by isolation of logs. 
+
+
+
+PinLog also supports Uncaught Exception Handling, which you can use like this :
+```kt
+PinLog.setupExceptionHandler(
+toEmails = arrayOf("example@gmail.com"), 
+message ="You can add additional comments 
+in this email which may help us a lot.",
+subject =  "Sorry MyApplication crashed, 
+we will try better next time.")
+```
+
 PinLog is an easy-to-use and powerful android Logging Library. It is made by Aditya Bavadekar.
 
 ![](https://github.com/AdityaBavadekar/PinLog/blob/master/icon-512.png)
@@ -131,6 +164,23 @@ class MainActivity : AppCompatActivity() {
     }
 
 }
+```
+
+
+You can customise the log format 
+by extending [`LoggingStyle`](https://github.com/AdityaBavadekar/PinLog/blob/master/pinlog/src/main/java/com/adityaamolbavadekar/pinlog/LoggingStyle.kt) class and 
+configuring it with PinLog by calling 
+
+```kt
+PinLog.setLogFormatting(myCustomLoggingStyle)
+```
+
+
+But the default implementation that is in 
+the class called as [`DefaultApplicationLoggingStyle`](https://github.com/AdityaBavadekar/PinLog/blob/master/pinlog/src/main/java/com/adityaamolbavadekar/pinlog/DefaultApplicationLoggingStyle.kt)
+Which has output similar to this line.
+```
+Vr/[0.0.1-debug] Mon Jul 04 14:13:44 GMT+05:30 2022/ D/AuthFragment : onPause
 ```
 
 # Sample
