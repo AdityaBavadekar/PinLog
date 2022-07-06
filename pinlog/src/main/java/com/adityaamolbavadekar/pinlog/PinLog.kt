@@ -1194,10 +1194,26 @@ object PinLog {
         }
     }
 
+    /**
+     * This class helps in creating reports and sending that report.
+     * @see CrashReporter.createReport
+     * @see CrashReporter.sendCrashReportWithEmail
+     *
+     * */
     class CrashReporter {
 
         private var crashData: JSONObject = JSONObject()
 
+        /**
+         * Creates a report that includes
+         * data from [CustomLogFileData], your PinLogs,
+         * applicationInfo, BuildConfig if was provided while
+         * initialisation.
+         *
+         * The report returned is a [JSONObject] whose key
+         * can be retrieved from [CrashDataKeys].
+         *
+         * */
         fun createReport(
             t: Thread,
             e: Throwable?,
@@ -1206,6 +1222,22 @@ object PinLog {
             return crashData
         }
 
+        /**
+         * Creates a report that includes
+         * data from [CustomLogFileData], your PinLogs,
+         * applicationInfo, BuildConfig if was provided while
+         * initialisation.
+         *
+         * The generated Report is added as an attachment
+         * to an Email Intent.
+         *
+         * if the [PinLog.setupPinLogExceptionHandler] method was used by you in Application class,
+         * This method is called whenever a Crash occurs.
+         *
+         * *Note : The Application is force closed after sending Email to
+         * avoid any ANRs.*
+         *
+         * */
         fun sendCrashReportWithEmail(
             t: Thread,
             e: Throwable?,
