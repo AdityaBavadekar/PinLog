@@ -1,7 +1,7 @@
 ![Latest GitHub release ](https://img.shields.io/github/v/release/adityabavadekar/PinLog?label=PinLog)
 
 # What is PinLog?
-Using PinLog, you can store your logs in a sql database and also save them in a file without writing hundreds of lines of code. 
+Using PinLog, you can store your logs in a sql database and also save them in a file on android without writing hundreds of lines of code. 
 ```kt
 //Logs are automatically stored.
 PinLog.logI("MainActivity","onCreate")
