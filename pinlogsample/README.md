@@ -10,8 +10,9 @@ What does the app show?
 
 If you want to see advance usage of PinLog then check out [`pinlog-activity`](https://github.com/AdityaBavadekar/PinLog/blob/master/pinlog-activity) module.
 
-### Screenshots of `pinlogsample` app
+## Screenshots of *Pinlog Sample* app
 
-|![](/screenshots/PinLog_Sample_01.jpg)|![](/screenshots/PinLog_Sample_02.jpg)|
-|![](/screenshots/PinLog_Sample_03.jpg)|![](/screenshots/screenshot_exported_logs_file.jpg)|
+|![](screenshots/PinLog_Sample_01.jpg)|![](screenshots/PinLog_Sample_02.jpg)|
 |---|---|
+|![](screenshots/PinLog_Sample_03.jpg)|![](screenshots/screenshot_exported_logs_file.jpg)|
+
