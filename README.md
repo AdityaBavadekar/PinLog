@@ -18,12 +18,6 @@ PinLog.getAllPinLogsAsStringList()
 PinLogs.deleteAllPinLogs()
 ```
 
-
-PinLog-Activity is
-an extension library for PinLog usefull for debuging and finding bug by isolation of logs. 
-
-
-
 PinLog also supports Uncaught Exception Handling, which you can use like this :
 ```kt
 PinLog.setupExceptionHandler(
@@ -42,6 +36,21 @@ PinLog supports storing logs for later retrieval, saving logs in a file, saving 
 
 This project contains two modules i.e libraries namely  `pinlog` the main library and `pinlog-activity` the extension library.
 The main library does not depend on the other library, so you can use it directly from dependency.
+
+# What is pinlog-activity?
+PinLog-Activity is
+an extension library for PinLog usefull for debuging and finding bug by isolation of logs. 
+ 
+Many times we have to debug apps by connecting the android 
+device to pc just to view the logs from logcat.
+
+Pinlog-activity is an on-device app which is installed 
+with your application. When you open it you can
+see all the pinlogs added by your app. You can
+filter the logs according to their TAG property 
+or sort them. You can also export all logs to a file with it.
+
+
 
 ### Screenshots of `pinlog-activity` library
 
