@@ -137,7 +137,6 @@ class MainActivity : AppCompatActivity() {
 Following are dependencies that were used for `pinlog-activity` module.
 - Kotlin Coroutines 
 - Recyclerview
-- ContraintLayout
 
 # Author
 [@Aditya Bavadekar](https://github.com/AdityaBavadekar) on GitHub 
