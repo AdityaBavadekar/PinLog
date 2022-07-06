@@ -118,10 +118,10 @@ class MainActivity : AppCompatActivity() {
         logE("This is a error")
         logD("This is a debug log")
         //OR
-        PinLog.logI("onCreate")
-        PinLog.logW("This is a warning")
-        PinLog.logE("This is a error")
-        PinLog.logD("This is a debug log")
+        PinLog.logI("MainActivity","onCreate")
+        PinLog.logW("MainActivity","This is a warning")
+        PinLog.logE("MainActivity","This is a error")
+        PinLog.logD("MainActivity","This is a debug log")
 
         //Get stored logs
         PinLog.getAllPinLogsAsStringList()
