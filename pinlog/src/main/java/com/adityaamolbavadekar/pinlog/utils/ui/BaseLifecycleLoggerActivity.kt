@@ -34,7 +34,7 @@ import com.adityaamolbavadekar.pinlog.utils.ui.LifecycleConstants.ON_STOP
  * of the activity. Eg: onStart() onStop() etc.
  * You can access the value of [mTag] and also use the [logMethodInvoked]
  *  and [LifecycleConstants] class.
- * You can inherit your activity from this class and the [mTag] get
+ * You can inherit your activity from this class and the [mTag] automically gets
  * the name of your activity file.
  *
  * @see LifecycleConstants
@@ -43,6 +43,11 @@ import com.adityaamolbavadekar.pinlog.utils.ui.LifecycleConstants.ON_STOP
  * */
 open class BaseLifecycleLoggerActivity : AppCompatActivity() {
 
+    /**
+     * Value is same as the name of your Activity file.
+     * Used to identify the source of a log message.
+     * It usually identifies the class or activity where the log call occurs.
+     * */
     val mTag: String = javaClass.simpleName
 
     override fun onCreate(savedInstanceState: Bundle?) {

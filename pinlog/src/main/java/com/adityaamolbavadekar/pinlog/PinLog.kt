@@ -955,6 +955,10 @@ object PinLog {
      * number of logcat lines included in the report will be 8000,
      * default is 200 lines which is sufficient for most developers.
      *
+     * Following are defaults for Email:
+     * - Subject : Application `appName` crashed.
+     * - Message : Occurrence : `Date`.
+     *
      * You can even provide custom data using [CustomLogFileData.put] methods.
      *
      * If you want this Handler to be disable then use [disablePinLogExceptionHandler].
@@ -980,8 +984,10 @@ object PinLog {
 
 
     /**
-     * If you have set the [setupPinLogExceptionHandler].
-     * Then this customData will be added to the logsFile.
+     *
+     * If you have set the [setupPinLogExceptionHandler] or
+     * if you use [getAllPinLogsInFile] function,
+     * then this customData will be added to the logsFile.
      *
      * */
     class CustomLogFileData {
@@ -1437,11 +1443,10 @@ object PinLog {
      * */
     private const val LOGS_DIR_NAME = "logs_app_dir"
     private const val DATE_FORMAT = "dd.MM.yyyy h:mm:ss a z"
-    private const val FILE_DATE_FORMAT = "dd_MM_yyyy_h_mm_a_a"
+    private const val FILE_DATE_FORMAT = "dd_MM_yyyy_h_mm_a"
     private const val PROVIDER_SUFFIX = ".pinlog.provider"
     private const val DEFAULT_LOG_BUFFER_SIZE = 207
     private const val LONG_LOG_BUFFER_SIZE = 8192
-
 
 }
 

@@ -44,6 +44,11 @@ import com.adityaamolbavadekar.pinlog.utils.ui.LifecycleConstants.ON_STOP
  * */
 open class BaseLifecycleLoggerFragment : Fragment() {
 
+    /**
+     * Value is same as the name of your Fragment file.
+     * Used to identify the source of a log message.
+     * It usually identifies the class or activity where the log call occurs.
+     * */
     val mTag: String = javaClass.simpleName
 
     override fun onCreate(savedInstanceState: Bundle?) {

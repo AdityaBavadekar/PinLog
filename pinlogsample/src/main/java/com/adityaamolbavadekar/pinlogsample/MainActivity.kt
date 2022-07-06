@@ -35,6 +35,7 @@ class MainActivity : BaseLifecycleLoggerActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
+
         val prefs = PreferenceManager.getDefaultSharedPreferences(this)
         var clicksSize = prefs.getInt("Clicks", 0)
         findViewById<TextView>(R.id.textView).setOnClickListener {
@@ -56,10 +57,11 @@ class MainActivity : BaseLifecycleLoggerActivity() {
             PinLog.CustomLogFileData().put("LastClicked", "${Date()}")
 
             /**
-             * Add logs.
+             * Add logs with different TAGs so that we
+             * can filter them in pinlog-activity for PinLog Sample app.
              * */
             logI("Hooray! TextView was clicked.")
-            PinLog.logI("View", "Hooray! TextView was clicked.")
+            PinLog.logI("View", "Hooray! View was clicked.")
             PinLog.logD("TextView", "Hooray! TextView was clicked.")
             PinLog.logW("ClicksRecorder", "Clicks size is now $clicksSize.")
         }
@@ -68,7 +70,7 @@ class MainActivity : BaseLifecycleLoggerActivity() {
             /**
              * We are not logging this report through PinLog.logI() method because
              * the Report created is 200+ lines. And there in no need to store this report
-             * in the PinLog database. Instead we can use [PinLog.getAllPinLogsInFile]
+             * in the PinLog database. Instead you can use [PinLog.getAllPinLogsInFile]
              * if you want to store the logs.
              * */
             Log.d(
@@ -76,6 +78,7 @@ class MainActivity : BaseLifecycleLoggerActivity() {
                 PinLog.CrashReporter().createReport(Thread.currentThread(), NullPointerException())
                     .toString()
             )
+            PinLog.logW("CrashReportGenerationListener", "A report was generated on ${Date()}")
         }
 
         findViewById<TextView>(R.id.textView3).setOnClickListener {

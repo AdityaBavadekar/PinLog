@@ -17,15 +17,29 @@
 package com.adityaamolbavadekar.pinlogsample
 
 import android.app.Application
+import com.adityaamolbavadekar.pinlog.PinLog
 import com.adityaamolbavadekar.pinlog.extensions.initPinLoggerInDebugMode
 import com.adityaamolbavadekar.pinlog.extensions.installPinLoggerExceptionHandler
 
+/**
+ * [Application] class for PinLog Sample app.
+ * Mentioned in AndroidManifest.xml file.
+ * */
 class App : Application() {
 
     override fun onCreate() {
         super.onCreate()
+
+        /**
+         * Initialisation of [PinLog]
+         * */
         initPinLoggerInDebugMode()
-        installPinLoggerExceptionHandler(arrayOf("adityarbavadekar@gmail.com"))
+
+        /**
+         * We are using this line to also Initialise PinLog Exception Handler,
+         * which is useful to get crash report if a crash occurred.
+         * */
+        installPinLoggerExceptionHandler(toEmails = arrayOf("example@gmail.com"))
     }
 
 }

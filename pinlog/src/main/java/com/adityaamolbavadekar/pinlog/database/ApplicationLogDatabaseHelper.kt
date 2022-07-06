@@ -306,6 +306,8 @@ internal class ApplicationLogDatabaseHelper(c: Context) : SQLiteOpenHelper(
             return
         }
         database?.let { db ->
+            val today = Calendar.getInstance()
+            val todayDayOfYear = today[Calendar.DAY_OF_YEAR]
             val c = getCursorForExpiryLogs(db)
             val deletableLogs = mutableListOf<Int>()
             if (c == null || c.isClosed) return
@@ -316,12 +318,10 @@ internal class ApplicationLogDatabaseHelper(c: Context) : SQLiteOpenHelper(
 
                         val id = c.getInt(0)
                         val created: Long = c.getInt(1).toLong()
-                        val today = Calendar.getInstance()
-                        today.timeInMillis = System.currentTimeMillis()
                         val cal = Calendar.getInstance()
                         cal.timeInMillis = created
 
-                        if (cal[Calendar.DAY_OF_YEAR] + 7 < today[Calendar.DAY_OF_YEAR]) {
+                        if (cal[Calendar.DAY_OF_YEAR] + 7 < todayDayOfYear) {
                             deletableLogs.add(id)
                         }
 

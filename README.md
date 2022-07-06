@@ -133,6 +133,13 @@ class MainActivity : AppCompatActivity() {
 }
 ```
 
+# Sample
+A sample called Pinlog Sample `pinlogsample` is included in the source, which
+demonstrates common and simple usage of PinLog library. 
+You can find debug-apks for same app in the latest relaeses.
+
+[View Sample App](https://github.com/AdityaBavadekar/PinLog/blob/master/pinlogsample)
+
 # Dependencies used 
 Following are dependencies that were used for `pinlog-activity` module.
 - Kotlin Coroutines 

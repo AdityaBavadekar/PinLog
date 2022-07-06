@@ -22,18 +22,31 @@ import com.adityaamolbavadekar.pinlog.PinLog
 import com.adityaamolbavadekar.pinlog.PinLog.CLASS_TAG
 import com.adityaamolbavadekar.pinlog.database.ApplicationLogModel
 
+/**
+ * @see [PinLog.initialise]
+ * */
 fun Application.initPinLogger(): Boolean {
     return PinLog.initialise(this)
 }
 
+/**
+ * @see [PinLog.initialiseDebug]
+ * */
 fun Application.initPinLoggerInDebugMode(): Boolean {
     return PinLog.initialiseDebug(this)
 }
 
+/**
+ * @see [PinLog.initialiseRelease]
+ * */
 fun Application.initPinLoggerInReleaseMode(): Boolean {
     return PinLog.initialiseRelease(this)
 }
 
+/**
+ * @see [PinLog.setupPinLogExceptionHandler]
+ * @see [PinLog.disablePinLogExceptionHandler]
+ * */
 fun installPinLoggerExceptionHandler(
     toEmails: Array<String>? = null,
     message: String? = null,
@@ -43,22 +56,42 @@ fun installPinLoggerExceptionHandler(
     PinLog.setupPinLogExceptionHandler(toEmails, message, subject, maxBuffer)
 }
 
+/**
+ * **Warning** : if you are using this, please note
+ * that which logging this function uses "?" as TAG.
+ * */
 inline fun debug(m: () -> String) {
     PinLog.logD("?", m())
 }
 
+/**
+ * **Warning** : if you are using this, please note
+ * that which logging this function uses "?" as TAG.
+ * */
 inline fun warn(m: () -> String) {
     PinLog.logW("?", m())
 }
 
+/**
+ * **Warning** : if you are using this, please note
+ * that which logging this function uses "?" as TAG.
+ * */
 inline fun info(m: () -> String) {
     PinLog.logI("?", m())
 }
 
+/**
+ * **Warning** : if you are using this, please note
+ * that which logging this function uses "?" as TAG.
+ * */
 inline fun error(m: () -> String) {
     PinLog.logE("?", m())
 }
 
+/**
+ * **Warning** : if you are using this, please note
+ * that which logging this function uses "?" as TAG.
+ * */
 inline fun error(e: Exception, m: () -> String) {
     PinLog.logE("?", m(), e)
 }
@@ -68,7 +101,7 @@ internal fun MutableList<PinLog.OnStringLogAddedListener>.submitLog(log: String)
         try {
             it.onLogAdded(log)
         } catch (e: Exception) {
-            PinLog.logW(CLASS_TAG, "Could not notify $it about newly added log")
+            PinLog.logWarning("Could not notify $it about newly added log")
         }
     }
 }
@@ -78,7 +111,7 @@ internal fun MutableList<PinLog.OnLogAddedListener>.submitLog(log: ApplicationLo
         try {
             it.onLogAdded(log)
         } catch (e: Exception) {
-            PinLog.logW(CLASS_TAG, "Could not notify $it about newly added log")
+            PinLog.logWarning("Could not notify $it about newly added log")
         }
     }
 }

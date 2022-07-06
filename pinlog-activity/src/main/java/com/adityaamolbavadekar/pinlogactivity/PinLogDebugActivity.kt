@@ -43,6 +43,7 @@ class PinLogDebugActivity : AppCompatActivity(), SearchView.OnQueryTextListener 
     private lateinit var logsRecyclerView: RecyclerView
     private var tagsList: MutableList<String> = mutableListOf()
     private var appName: String = "Unknown"
+    private var selectionIndex: Int = 0
     private val isLoading: MutableLiveData<Boolean> = MutableLiveData(true)
     private val isEmpty: MutableLiveData<Boolean> = MutableLiveData(false)
 
@@ -125,7 +126,6 @@ class PinLogDebugActivity : AppCompatActivity(), SearchView.OnQueryTextListener 
         }
 
     private fun showTagChooserDialog() {
-        var selection = 0
         if (tagsList.size <= 1) {
             //Don't show the dialog if tagsList is empty.
             Toast.makeText(this, getString(R.string.no_tags_found_to_filter), Toast.LENGTH_SHORT)
@@ -135,21 +135,22 @@ class PinLogDebugActivity : AppCompatActivity(), SearchView.OnQueryTextListener 
         val builder = AlertDialog.Builder(this)
         builder.setTitle(getString(R.string.choose_a_tag_value))
         builder.setCancelable(true)
-        builder.setSingleChoiceItems(tagsList.toTypedArray(), selection)
-        { _, which -> selection = which }
+        builder.setSingleChoiceItems(tagsList.toTypedArray(), selectionIndex)
+        { _, which -> selectionIndex = which }
         builder.setNeutralButton(getString(R.string.cancel)) { dialog, _ ->
             dialog.dismiss()
         }
         builder.setPositiveButton(getString(R.string.apply)) { dialog, _ ->
-            if (selection == 0) {
+            if (selectionIndex == 0) {
                 //Index 0 indicates that `None` option has been selected.
                 logsAdapter.sortById()
             } else {
-                logsAdapter.filterTag(tagsList[selection], this)
+                logsAdapter.filterTag(tagsList[selectionIndex], this)
             }
             dialog.dismiss()
         }
         builder.setNegativeButton(getString(R.string.clear_filter)) { dialog, _ ->
+            selectionIndex = 0
             logsAdapter.sortById()
             dialog.dismiss()
         }

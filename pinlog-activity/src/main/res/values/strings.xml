@@ -17,7 +17,7 @@
 <resources>
     <string name="no_logs_yet">No logs yet.</string>
     <string name="no_logs_yet_main_content_one">*Make sure you have initialised PinLog class in your Application\'s onCreate method.</string>
-    <string name="no_logs_yet_main_content_two">*Use the following line in your code to a test.</string>
+    <string name="no_logs_yet_main_content_two">*Use the following line in your code to test.</string>
     <string name="code_initialise">PinLog.initialiseDebug(this)</string>
     <string name="code_text">PinLog.logI(\"MainActivity\",\n\"Hello World\")</string>
     <string name="pinlog_title">PinLog : %1s</string>
@@ -38,7 +38,7 @@
     <string name="no_results_found">No results found</string>
     <string name="none">None</string>
     <string name="no_tags_found_to_filter">No TAGs found to filter.</string>
-    <string name="pinlog_info">About : PinLog is an easy-to-use and powerful android Logging Library.\n\nAuthor: Aditya Bavadekar\n\nGitHub : github.com/AdityaBavadekar/PinLog\n\nApp : %1s</string>
+    <string name="pinlog_info">About : PinLog is an easy-to-use and powerful android Logging Library.\n\nAuthor: Aditya Bavadekar\n\nGitHub : github.com/AdityaBavadekar/PinLog\n\nApp : %1s\n\nTip: You can long-click on a log to copy it.</string>
     <string name="copied_to_clipboard">Copied to clipboard</string>
     <string name="application_logs">Application Logs</string>
     <string name="hey_i_am_sharing_logs_with_you">Hey! I am sharing logs with you.</string>
