@@ -1,5 +1,6 @@
 ![Latest GitHub release ](https://img.shields.io/github/v/release/adityabavadekar/PinLog?label=PinLog)
-
+|[**Go to Documentation**](https://adityabavadekar.gitbook.io/pinlog-docs/)|
+|--|
 # What is PinLog?
 Using PinLog, you can store your logs in a sql database and also save them in a file on android without writing hundreds of lines of code. 
 ```kt
@@ -191,6 +192,9 @@ Which has output similar to this line.
 ```
 Vr/[0.0.1-debug] Mon Jul 04 14:13:44 GMT+05:30 2022/ D/AuthFragment : onPause
 ```
+
+# Documentation
+A complete documentation is available [here](https://adityabavadekar.gitbook.io/pinlog-docs/).
 
 # Sample
 A sample called Pinlog Sample `pinlogsample` is included in the source, which
