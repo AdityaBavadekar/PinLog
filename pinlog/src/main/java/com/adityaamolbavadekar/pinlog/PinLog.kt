@@ -684,8 +684,8 @@ object PinLog {
         } else {
             val list = (applicationLogDataSource!!.getAllPinLogsAsStringList())
             logs = ""
-            list.forEach {
-                logs += it + "\n"
+            for (stringLog in list) {
+                logs += stringLog + "\n"
             }
         }
         return logs
